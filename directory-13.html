@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATL Restaurant Directory — Ask Mo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f8f6f2;
+  --white: #fff;
+  --text: #1c1410;
+  --muted: #6b7280;
+  --border: #e5e0d8;
+  --radius: 10px;
+  --shadow: 0 1px 4px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 14px rgba(0,0,0,0.1);
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; min-height: 100vh; }
+
+/* ── HEADER ── */
+.header {
+  background: #fff; border-bottom: 2px solid #e5e0d8;
+  padding: 16px 24px; display: flex; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.logo { width: 38px; height: 38px; border-radius: 50%; background: #eff6ff; border: 2px solid #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.brand { font-family: 'Merriweather', serif; font-weight: 800; font-size: 18px; color: #1d5bbf; }
+.brand-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.header-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.btn-print { padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border); background: #fff; color: var(--muted); font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; }
+.btn-print:hover { background: var(--bg); color: var(--text); }
+.btn-back { padding: 7px 14px; border-radius: 8px; border: 1px solid #bfdbfe; background: #eff6ff; color: #1d5bbf; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; transition: all .15s; }
+.btn-back:hover { background: #dbeafe; }
+
+/* ── SEARCH ── */
+.search-bar { background: #fff; border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; align-items: center; gap: 10px; }
+.search-input { flex: 1; max-width: 420px; padding: 8px 14px 8px 36px; border: 1px solid var(--border); border-radius: 20px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='M21 21l-4.35-4.35'/%3E%3C/svg%3E") no-repeat 12px center; transition: border-color .15s; }
+.search-input:focus { border-color: #93c5fd; }
+.search-count { font-size: 12px; color: var(--muted); }
+
+/* ── NAV TABS ── */
+.concourse-nav { background: #fff; border-bottom: 2px solid var(--border); padding: 0 20px; display: flex; gap: 2px; overflow-x: auto; }
+.concourse-nav::-webkit-scrollbar { height: 4px; }
+.concourse-nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+.c-tab { padding: 10px 16px; border: none; background: transparent; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); border-bottom: 3px solid transparent; transition: all .15s; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+.c-tab:hover { color: var(--text); }
+.c-tab.active { color: var(--text); border-bottom-color: currentColor; }
+.c-tab .tab-dot { width: 8px; height: 8px; border-radius: 50%; }
+.c-tab-count { font-size: 10px; background: #f3f4f6; border-radius: 10px; padding: 1px 6px; color: var(--muted); }
+
+/* ── DINING / SHOPS MODE TOGGLE ── */
+.dir-mode-bar { display: flex; gap: 8px; padding: 12px 20px 0; background: #fff; flex-wrap: wrap; }
+.dir-mode-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 18px; border: 1.5px solid var(--border); border-radius: 10px;
+  background: #f9fafb; cursor: pointer;
+  font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 600; color: var(--muted);
+  transition: all 0.15s; min-height: 42px;
+}
+.dir-mode-btn:hover { color: var(--text); border-color: #c7d2fe; }
+.dir-mode-btn.active { background: #1d5bbf; color: #fff; border-color: #1d5bbf; }
+.dir-mode-btn[data-mode="shops"].active { background: #be185d; border-color: #be185d; }
+.shop-cat-tag {
+  display: inline-block; font-size: 11px; font-weight: 700;
+  padding: 3px 9px; border-radius: 7px; white-space: nowrap;
+  background: #fdf2f8; color: #be185d; border: 1px solid #fbcfe8;
+}
+.shop-cat-tag.cat-electronics { background:#eef2ff; color:#4338ca; border-color:#c7d2fe; }
+.shop-cat-tag.cat-atm { background:#f0fdf4; color:#15803d; border-color:#bbf7d0; }
+.shop-cat-tag.cat-currency { background:#f0fdfa; color:#0d9488; border-color:#99f6e4; }
+.shop-cat-tag.cat-newsstand { background:#f8fafc; color:#475569; border-color:#e2e8f0; }
+.shop-cat-tag.cat-convenience { background:#ecfeff; color:#0891b2; border-color:#a5f3fc; }
+.shop-cat-tag.cat-souvenirs { background:#fefce8; color:#a16207; border-color:#fde68a; }
+.shop-cat-tag.cat-services { background:#fff7ed; color:#b45309; border-color:#fed7aa; }
+.shop-cat-tag.cat-health { background:#fdf2f8; color:#db2777; border-color:#fbcfe8; }
+
+/* ── MAIN LAYOUT ── */
+.main { padding: 20px 24px 60px; max-width: 1400px; margin: 0 auto; }
+
+/* ── LOUNGE CALLOUT CARDS ── */
+.lounge-callout-wrap { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.sky-club-callout {
+  background: #eef2ff; border: 1.5px solid #c7d2fe; border-radius: 12px;
+  padding: 12px 16px;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.lounge-callout-centurion { background: #eff6ff; border-color: #93c5fd; }
+.lounge-callout-admirals  { background: #fff1f2; border-color: #fca5a5; }
+.lounge-callout-united    { background: #eff6ff; border-color: #93c5fd; }
+.lounge-callout-clubatl   { background: #f9fafb; border-color: #d1d5db; }
+.sc-diamond { width: 32px; height: 32px; background: #4338ca; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white; flex-shrink: 0; transform: rotate(45deg); }
+.sc-diamond span { transform: rotate(-45deg); display: block; }
+.sc-diamond.centurion { background: #1a6fa8; border-radius: 50%; transform: none; width: 32px; height: 32px; }
+.sc-diamond.admirals  { background: #b91c1c; border-radius: 6px; transform: none; }
+.sc-diamond.united    { background: #1d4ed8; border-radius: 3px; transform: none; }
+.sc-diamond.clubatl   { background: #374151; border-radius: 6px; transform: rotate(45deg); }
+.sc-info { flex: 1; }
+.sc-title { font-weight: 700; color: #3730a3; font-size: 13px; }
+.sc-title-centurion { color: #1a6fa8; }
+.sc-title-admirals  { color: #b91c1c; }
+.sc-title-united    { color: #1d4ed8; }
+.sc-title-clubatl   { color: #374151; }
+.sc-detail { color: #4338ca; font-size: 12px; margin-top: 2px; line-height: 1.5; }
+.sc-detail-muted { color: #64748b !important; }
+.sc-badge { display: inline-block; background: #fff; border: 1px solid #c7d2fe; color: #4338ca; font-size: 11px; font-weight: 600; border-radius: 5px; padding: 1px 7px; margin-right: 4px; margin-top: 4px; }
+.sc-badge.newest { background: #f5f3ff; border-color: #a5b4fc; color: #6d28d9; }
+.sc-access-mini { font-size: 11px; color: #374151; margin-top: 4px; line-height: 1.6; background: rgba(255,255,255,0.6); border-radius: 6px; padding: 4px 8px; }
+
+/* ── SECTION HEADER ── */
+.section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.section-pill { padding: 5px 16px; border-radius: 20px; font-weight: 700; font-size: 14px; color: #fff; }
+.section-desc { font-size: 12px; color: var(--muted); }
+
+/* ── TABLE ── */
+.table-wrap { overflow-x: auto; border-radius: var(--radius); box-shadow: var(--shadow); background: #fff; margin-bottom: 32px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead { position: sticky; top: 0; }
+thead th { padding: 10px 14px; text-align: left; font-size: 10px; font-weight: 700; letter-spacing: .7px; text-transform: uppercase; color: var(--muted); background: #f9fafb; border-bottom: 1.5px solid var(--border); white-space: nowrap; }
+tbody tr { border-bottom: 1px solid #f0ede8; transition: background .1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #fafaf8; }
+tbody tr.hidden { display: none; }
+td { padding: 11px 14px; vertical-align: top; }
+td.name-cell { font-weight: 600; color: var(--text); min-width: 160px; }
+td.name-cell .hours { font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 2px; }
+td.name-cell .tags { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+.tag { font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 600; }
+.tag-atl    { background: #fef3c7; color: #92400e; }
+.tag-bar    { background: #ede9fe; color: #5b21b6; }
+.tag-coffee { background: #fef9ee; color: #92400e; }
+.tag-fast   { background: #f0fdf4; color: #15803d; }
+.tag-healthy{ background: #ecfdf5; color: #065f46; }
+.tag-24hr   { background: #fff7ed; color: #c2410c; }
+.tag-upscale{ background: #fdf4ff; color: #86198f; }
+td.gate-cell { color: #374151; min-width: 100px; }
+td.gate-cell .gate-num { font-weight: 700; color: #1d5bbf; font-size: 13px; }
+td.nearby-rest { color: #374151; min-width: 180px; line-height: 1.6; }
+td.nearby-land { color: #4b5563; min-width: 160px; line-height: 1.6; }
+td.sky-club-cell { min-width: 140px; }
+.sc-cell-inner { display: flex; align-items: flex-start; gap: 6px; }
+.sc-mini-diamond { width: 14px; height: 14px; background: #4338ca; border-radius: 2px; transform: rotate(45deg); flex-shrink: 0; margin-top: 2px; }
+.sc-cell-text { font-size: 12px; color: #3730a3; font-weight: 500; line-height: 1.4; }
+.sc-cell-dist { font-size: 11px; color: var(--muted); }
+td.plain-cell { color: #374151; min-width: 220px; line-height: 1.6; font-style: italic; }
+.assumption-note { font-size: 10px; color: #9ca3af; display: block; margin-top: 2px; font-style: normal; }
+
+/* ── CONCOURSE-SPECIFIC PILL COLORS ── */
+.pill-T { background: #0f766e; }
+.pill-A { background: #1d5bbf; }
+.pill-B { background: #7c3aed; }
+.pill-C { background: #c2410c; }
+.pill-D { background: #b45309; }
+.pill-E { background: #0369a1; }
+.pill-F { background: #1e3a5f; }
+.pill-domestic { background: #374151; }
+
+.tab-T { color: #0f766e; }
+.tab-T.active { border-bottom-color: #0f766e !important; color: #0f766e; }
+.tab-A { color: #1d5bbf; }
+.tab-A.active { border-bottom-color: #1d5bbf !important; color: #1d5bbf; }
+.tab-B { color: #7c3aed; }
+.tab-B.active { border-bottom-color: #7c3aed !important; color: #7c3aed; }
+.tab-C { color: #c2410c; }
+.tab-C.active { border-bottom-color: #c2410c !important; color: #c2410c; }
+.tab-D { color: #b45309; }
+.tab-D.active { border-bottom-color: #b45309 !important; color: #b45309; }
+.tab-E { color: #0369a1; }
+.tab-E.active { border-bottom-color: #0369a1 !important; color: #0369a1; }
+.tab-F { color: #1e3a5f; }
+.tab-F.active { border-bottom-color: #1e3a5f !important; color: #1e3a5f; }
+.tab-domestic { color: #374151; }
+.tab-domestic.active { border-bottom-color: #374151 !important; color: #374151; }
+
+.dot-T { background: #0f766e; }
+.dot-A { background: #1d5bbf; }
+.dot-B { background: #7c3aed; }
+.dot-C { background: #c2410c; }
+.dot-D { background: #b45309; }
+.dot-E { background: #0369a1; }
+.dot-F { background: #1e3a5f; }
+.dot-domestic { background: #374151; }
+
+/* ── NOTES FOOTER ── */
+.notes-section { margin-top: 32px; padding: 16px 20px; background: #fff; border-radius: 12px; border: 1px solid var(--border); }
+.notes-title { font-weight: 700; font-size: 13px; color: var(--text); margin-bottom: 8px; }
+.notes-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+.notes-list li { font-size: 12px; color: var(--muted); padding-left: 18px; position: relative; line-height: 1.6; }
+.notes-list li::before { content: "†"; position: absolute; left: 0; color: #9ca3af; }
+
+/* ── EMPTY STATE ── */
+.empty { padding: 40px; text-align: center; color: var(--muted); }
+
+/* ── DARK MODE ── */
+[data-theme="dark"] {
+  --bg: #13151c;
+  --white: #1b1e27;
+  --text: #e7e9ee;
+  --muted: #9aa3b2;
+  --text-muted: #9aa3b2;
+  --border: #2a2e3a;
+  --surface: #1b1e27;
+  --surface2: #22263a;
+  --surface3: #2e3347;
+  --amber: #60a5fa;
+  --amber-bg: #172554;
+  --amber-mid: #3b82f6;
+  --shadow: 0 1px 4px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 14px rgba(0,0,0,0.5);
+}
+[data-theme="dark"] .header { background: #1b1e27; border-bottom-color: #2a2e3a; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+[data-theme="dark"] .logo { background: #172554; border-color: #3b82f6; }
+[data-theme="dark"] .brand { color: #6ea8fe; }
+[data-theme="dark"] .btn-print { background: #22263a; border-color: var(--border); color: var(--muted); }
+[data-theme="dark"] .btn-print:hover { background: #2a2e3a; color: var(--text); }
+[data-theme="dark"] .btn-back { background: #172554; border-color: #1e40af; color: #93c5fd; }
+[data-theme="dark"] .btn-back:hover { background: #1e3a8a; }
+[data-theme="dark"] .dark-btn { background: #22263a; border-color: var(--border); }
+[data-theme="dark"] .search-bar { background: #1b1e27; border-bottom-color: var(--border); }
+[data-theme="dark"] .search-input { background-color: #22263a; border-color: var(--border); color: var(--text); }
+[data-theme="dark"] .search-input:focus { border-color: #3b82f6; }
+[data-theme="dark"] .concourse-nav { background: #1b1e27; border-bottom-color: var(--border); }
+[data-theme="dark"] .c-tab-count { background: #2a2e3a; color: var(--muted); }
+[data-theme="dark"] .dir-mode-bar { background: #1b1e27; }
+[data-theme="dark"] .dir-mode-btn { background: #22263a; border-color: var(--border); color: var(--muted); }
+[data-theme="dark"] .dir-mode-btn:hover { color: var(--text); border-color: #3b4a5a; }
+[data-theme="dark"] .dir-mode-btn.active { background: #2563c9; color: #fff; border-color: #2563c9; }
+[data-theme="dark"] .dir-mode-btn[data-mode="shops"].active { background: #be185d; border-color: #be185d; }
+/* dark scrollbars */
+[data-theme="dark"] ::-webkit-scrollbar { width: 10px; height: 8px; }
+[data-theme="dark"] ::-webkit-scrollbar-track { background: #13151c; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #2a2e3a; border-radius: 4px; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #3a3f4d; }
+[data-theme="dark"] .concourse-nav::-webkit-scrollbar-thumb { background: #2a2e3a; }
+[data-theme="dark"] { scrollbar-color: #2a2e3a #13151c; }
+[data-theme="dark"] .table-wrap { background: #1b1e27; }
+[data-theme="dark"] thead th { background: #20242e; border-bottom-color: var(--border); color: var(--muted); }
+[data-theme="dark"] tbody tr { border-bottom-color: #23262f; }
+[data-theme="dark"] tbody tr:hover { background: #20242e; }
+[data-theme="dark"] td.gate-cell { color: #c3cad6; }
+[data-theme="dark"] td.gate-cell .gate-num { color: #6ea8fe; }
+[data-theme="dark"] td.nearby-rest { color: #c3cad6; }
+[data-theme="dark"] td.nearby-land { color: #aab2bf; }
+[data-theme="dark"] td.plain-cell { color: #c3cad6; }
+[data-theme="dark"] .sc-cell-text { color: #a5b4fc; }
+[data-theme="dark"] .assumption-note { color: #7d8696; }
+[data-theme="dark"] .notes-section { background: #1b1e27; border-color: var(--border); }
+[data-theme="dark"] .empty { color: var(--muted); }
+/* lounge callouts */
+[data-theme="dark"] .sky-club-callout { background: #1e2030; border-color: #313a63; }
+[data-theme="dark"] .lounge-callout-centurion { background: #0f223b; border-color: #1e40af; }
+[data-theme="dark"] .lounge-callout-admirals  { background: #2b1316; border-color: #7f1d1d; }
+[data-theme="dark"] .lounge-callout-united    { background: #0f223b; border-color: #1e40af; }
+[data-theme="dark"] .lounge-callout-clubatl   { background: #1c1f29; border-color: #3a3f4d; }
+[data-theme="dark"] .sc-title { color: #a5b4fc; }
+[data-theme="dark"] .sc-title-centurion { color: #5fa8d8; }
+[data-theme="dark"] .sc-title-admirals  { color: #f87171; }
+[data-theme="dark"] .sc-title-united    { color: #6ea8fe; }
+[data-theme="dark"] .sc-title-clubatl   { color: #cbd5e1; }
+[data-theme="dark"] .sc-detail { color: #a5b4fc; }
+[data-theme="dark"] .sc-detail-muted { color: #94a3b8 !important; }
+[data-theme="dark"] .sc-badge { background: #1b1e27; border-color: #313a63; color: #a5b4fc; }
+[data-theme="dark"] .sc-badge.newest { background: #2e1065; border-color: #6d28d9; color: #c4b5fd; }
+[data-theme="dark"] .sc-access-mini { color: #cbd5e1; background: rgba(255,255,255,0.05); }
+/* food tags */
+[data-theme="dark"] .tag-atl    { background: #422006; color: #fbbf24; }
+[data-theme="dark"] .tag-bar    { background: #2e1065; color: #c4b5fd; }
+[data-theme="dark"] .tag-coffee { background: #422006; color: #fbbf24; }
+[data-theme="dark"] .tag-fast   { background: #052e16; color: #4ade80; }
+[data-theme="dark"] .tag-healthy{ background: #052e16; color: #4ade80; }
+[data-theme="dark"] .tag-24hr   { background: #431407; color: #fb923c; }
+[data-theme="dark"] .tag-upscale{ background: #2e1065; color: #d8b4fe; }
+/* shop category tags */
+[data-theme="dark"] .shop-cat-tag { background: #2b1622; color: #f9a8d4; border-color: #6d2950; }
+[data-theme="dark"] .shop-cat-tag.cat-electronics { background:#1e1b4b; color:#a5b4fc; border-color:#3730a3; }
+[data-theme="dark"] .shop-cat-tag.cat-atm { background:#052e16; color:#4ade80; border-color:#166534; }
+[data-theme="dark"] .shop-cat-tag.cat-currency { background:#042f2e; color:#5eead4; border-color:#115e59; }
+[data-theme="dark"] .shop-cat-tag.cat-newsstand { background:#1e293b; color:#cbd5e1; border-color:#334155; }
+[data-theme="dark"] .shop-cat-tag.cat-convenience { background:#083344; color:#67e8f9; border-color:#155e75; }
+[data-theme="dark"] .shop-cat-tag.cat-souvenirs { background:#422006; color:#fcd34d; border-color:#854d0e; }
+[data-theme="dark"] .shop-cat-tag.cat-services { background:#431407; color:#fdba74; border-color:#9a3412; }
+[data-theme="dark"] .shop-cat-tag.cat-health { background:#2b1622; color:#f9a8d4; border-color:#9d174d; }
+/* dark toggle button */
+.dark-btn { padding: 7px 12px; border-radius: 8px; border: 1px solid var(--border); background: #fff; font-size: 14px; cursor: pointer; line-height: 1; transition: all .15s; }
+.dark-btn:hover { background: var(--bg); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .header { padding: 14px 18px; gap: 12px; }
+  .search-bar { padding: 10px 18px; }
+  .search-input { max-width: none; }
+  .concourse-nav { padding: 0 14px; }
+  .dir-mode-bar { padding: 12px 14px 0; }
+  .main { padding: 18px 18px 48px; }
+  .section-header { flex-wrap: wrap; gap: 8px; }
+}
+@media (max-width: 560px) {
+  body { font-size: 13px; }
+  .header { padding: 12px 14px; gap: 10px; flex-wrap: wrap; }
+  .brand { font-size: 16px; }
+  .brand-sub { font-size: 10px; }
+  .header-actions { gap: 6px; }
+  .btn-print, .btn-back { padding: 6px 10px; font-size: 11px; }
+  .search-bar { padding: 9px 14px; }
+  .main { padding: 14px 12px 40px; }
+  .section-pill { font-size: 13px; padding: 4px 13px; }
+  .section-desc { font-size: 11px; }
+  .dir-mode-btn { font-size: 12.5px; padding: 8px 14px; }
+  table { font-size: 12px; }
+  thead th, td { padding: 9px 11px; }
+}
+
+/* ── PRINT ── */
+@media print {
+  .header, .search-bar, .concourse-nav, .header-actions, .dir-mode-bar { display: none; }
+  .main { padding: 0; max-width: none; }
+  .table-wrap { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+  tbody tr { page-break-inside: avoid; }
+}
+</style>
+<script>(function(){var t=localStorage.getItem('askmo-theme');var d=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(t!=='light'&&d))document.documentElement.setAttribute('data-theme','dark');})();</script>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">✈</div>
+  <div>
+    <div class="brand notranslate" translate="no">Ask Mo</div>
+    <div class="brand-sub" id="dirBrandSub">ATL Restaurant Directory — Hartsfield-Jackson Atlanta International</div>
+  </div>
+  <div class="header-actions">
+    <div id="langSwitcher" style="margin-right:4px;"></div><a href="index.html" onclick="window.location.href='index.html';return false;" class="btn-back" id="dirBackBtn"><span id="dirBackLabel">← Back to Home</span></a>
+    <button class="dark-btn" id="darkToggleBtn" onclick="toggleDark()" title="Toggle dark mode">🌙</button>
+    <button class="btn-print" id="dirPrintBtn" onclick="window.print()">🖨 Print</button>
+  </div>
+</header>
+
+<div class="search-bar">
+  <input type="text" class="search-input" id="searchInput" id="dirSearchInput" placeholder="Search restaurant, gate, or keyword…" oninput="handleSearch(this.value)">
+  <span class="search-count" id="searchCount"></span>
+</div>
+
+<div class="dir-mode-bar">
+  <button class="dir-mode-btn active" data-mode="dining" onclick="setDirMode('dining')">🍴 Dining</button>
+  <button class="dir-mode-btn" data-mode="shops" onclick="setDirMode('shops')">🛍️ Shops &amp; Services</button>
+</div>
+
+<nav class="concourse-nav" id="concourseNav"></nav>
+
+<main class="main" id="mainContent"></main>
+
+<script>
+
+// ── Directory i18n ──
+// Restore saved language (reads both storage keys for cross-compatibility with lang-switcher.js)
+const LANG_DIR = { val: (function() { try { var s = localStorage.getItem('askmo_google_lang') || localStorage.getItem('askmo_lang'); return (s && s !== 'en') ? s : 'en'; } catch(e) { return 'en'; } })() };
+const DIR_I18N = {
+  en: {
+    'brand.sub':'ATL Restaurant Directory — Hartsfield-Jackson Atlanta International',
+    'back':'← Back to Home','print':'🖨 Print',
+    'search.placeholder':'Search restaurant, gate, or keyword…',
+    'th.restaurant':'Restaurant','th.gate':'Gate Area',
+    'th.nearby.rest':'Nearby Restaurants','th.nearby.land':'Nearby Shops / Landmarks',
+    'th.location':'Plain-Language Location',
+    'domestic.tab':'Domestic Terminal','concourse.tab':'Concourse',
+    'dining.options':'dining options','lounges.here':'🛋️ Lounges in this concourse',
+    'walking':'Walking:','sources':'Sources & Notes',
+    'assumed':'† Gate area estimated from concourse zone',
+    'tag.atl':'ATL Local','tag.bar':'Bar','tag.coffee':'Coffee','tag.fast':'Fast Food',
+    'tag.healthy':'Healthy','tag.24hr':'24 hrs','tag.upscale':'Upscale',
+    'tag.breakfast':'Breakfast','tag.snacks':'Snacks',
+    'tag.black-owned':'Black-Owned','tag.veg':'Vegetarian-Friendly',
+    'search.results':'results across all concourses',
+    'notes.1':'Primary sources: Delta.com ATL airport map (Sky Club locations), ATL Skypointe official directory, AJC restaurant guides (updated March 2026), and shebuystravel.com ATL dining review.',
+    'notes.2':'Gate areas marked "† estimated" are based on concourse zone data; exact gate adjacency may shift during ATL renovation — check the rotating concourse screens at SkyTrain escalators.',
+    'notes.3':'All concourses are connected airside via the SkyTrain — no re-screening required to move between concourses. Train runs every ~2 minutes.',
+    'notes.4':'Delta Sky Club access: Delta Sky Club members · Delta One / First Class same-day passengers · Amex Platinum / Business Platinum cardholders (10 visit/yr limit, same-day Delta-operated flight required).',
+    'notes.5':'Hours are typical and may vary by season or renovation. Late-night options: Bang House Pizza (D, 24hr), Burger King (Domestic, F), McDonald\'s (A, E), La Madeleine (C), Starbucks (B, C37).',
+    'notes.6':'Concourse T is the only concourse physically attached to the Domestic Terminal — all others (A–F) are accessed via the underground SkyTrain.',
+  },
+  es: {
+    'brand.sub':'Directorio de Restaurantes ATL — Hartsfield-Jackson Atlanta Internacional',
+    'back':'← Volver al inicio','print':'🖨 Imprimir',
+    'search.placeholder':'Buscar restaurante, puerta o palabra clave…',
+    'th.restaurant':'Restaurante','th.gate':'Área de Puerta',
+    'th.nearby.rest':'Restaurantes Cercanos','th.nearby.land':'Tiendas / Referencias Cercanas',
+    'th.location':'Ubicación en Palabras Simples',
+    'domestic.tab':'Terminal Doméstica','concourse.tab':'Concurso',
+    'dining.options':'opciones de comida','lounges.here':'🛋️ Salas VIP en este concurso',
+    'walking':'Caminata:','sources':'Fuentes y Notas',
+    'assumed':'† Área de puerta estimada por zona de concurso',
+    'tag.atl':'Local de ATL','tag.bar':'Bar','tag.coffee':'Café','tag.fast':'Comida Rápida',
+    'tag.healthy':'Saludable','tag.24hr':'24 hrs','tag.upscale':'Elegante',
+    'tag.breakfast':'Desayuno','tag.snacks':'Snacks',
+    'tag.black-owned':'Propietarios Afroamericanos','tag.veg':'Apto Vegetarianos',
+    'search.results':'resultados en todos los concursos',
+    'notes.1':'Fuentes principales: mapa ATL de Delta.com, directorio oficial ATL Skypointe, guías AJC (marzo 2026) y reseña de shebuystravel.com.',
+    'notes.2':'Las áreas de puerta con "† estimado" se basan en zonas de concurso; la adyacencia exacta puede cambiar durante la renovación del ATL — consulta las pantallas del SkyTrain.',
+    'notes.3':'Todos los concursos están conectados airside mediante el SkyTrain — no se requiere repasar seguridad entre concursos. El tren sale cada ~2 minutos.',
+    'notes.4':'Acceso al Delta Sky Club: Miembros del Sky Club · Pasajeros Delta One / First Class mismo día · Titulares Amex Platinum / Business Platinum (máx. 10 visitas/año, vuelo Delta mismo día requerido).',
+    'notes.5':'Los horarios son típicos y pueden variar. Opciones de madrugada: Bang House Pizza (D, 24h), Burger King (Doméstico, F), McDonald\'s (A, E), La Madeleine (C), Starbucks (B, C37).',
+    'notes.6':'El Concurso T es el único unido al Terminal Doméstico — todos los demás (A–F) se acceden mediante el SkyTrain subterráneo.',
+  }
+};
+function td(key) {
+  const l = LANG_DIR.val;
+  return (DIR_I18N[l] && DIR_I18N[l][key] != null) ? DIR_I18N[l][key] : (DIR_I18N.en[key] || key);
+}
+function toggleDirLang() {
+  LANG_DIR.val = LANG_DIR.val === 'en' ? 'es' : 'en';
+  localStorage.setItem('askmo_lang', LANG_DIR.val);
+  localStorage.setItem('askmo_google_lang', LANG_DIR.val); // keep keys in sync
+  const btn = document.getElementById('dirLangBtn');
+  if (btn) btn.textContent = LANG_DIR.val === 'en' ? 'ES' : 'EN';
+  applyDirLang();
+  renderNav(); renderMain();
+}
+function applyDirLang() {
+  const el = (id) => document.getElementById(id);
+  if (el('dirBrandSub')) el('dirBrandSub').textContent = td('brand.sub');
+  if (el('dirBackLabel')) el('dirBackLabel').textContent = td('back');
+  if (el('dirPrintBtn')) el('dirPrintBtn').textContent = td('print');
+  if (el('dirSearchInput')) el('dirSearchInput').placeholder = td('search.placeholder');
+  if (el('dirLangBtn')) el('dirLangBtn').textContent = LANG_DIR.val === 'en' ? 'ES' : 'EN';
+}
+
+// ─────────────────────────────────────────────
+//  MASTER DATA
+// ─────────────────────────────────────────────
+const SKYCLUB = {
+  T: { label:"Sky Club · Concourse T", gate:"Near Gate T6", hours:"Daily 4:30am+", note:"Same area as Coffee Bean & Subway", walk:"0–2 min from most T gates" },
+  A: { label:"Sky Club · Concourse A", gate:"Near Gates A17/A19 · 2nd Floor", hours:"Daily 6am–10pm", note:"Take escalator up from A center", walk:"2–5 min from any A gate" },
+  B: { label:"Sky Club · Concourse B", gate:"Near Gate B18 · 25,000 sq ft", hours:"Daily 5:30am–10:30pm", note:"Centrally located in B", walk:"2–5 min from any B gate" },
+  C: { label:"Sky Club · Concourse C", gate:"Near Gate C37", hours:"Daily 6:45am–10:30pm", note:"East side of concourse", walk:"Up to 10 min from C6/C7 gates" },
+  D: { label:"Sky Club D Centerpoint ★", gate:"Near Gate D18 · Newest", hours:"Daily 6am–10pm", note:"24,500 sq ft · 500+ seats · newest ATL club", walk:"2–4 min from most D gates", newest:true },
+  E: { label:"Sky Club · Concourse E", gate:"Across from Gate E15", hours:"Daily 6:30am–10:30pm", note:"Mid-concourse, showers available", walk:"3–7 min from any E gate" },
+  F: { label:"Sky Club · Concourse F", gate:"Mezzanine Level", hours:"Daily 6:45am–12am", note:"Showers + Sky Deck available", walk:"1–3 min from F mezzanine" },
+};
+
+// For concourses with no on-site Sky Club, nearest via SkyTrain
+const NEAREST_SC = {
+  domestic: { label:"Sky Club · Concourse T", note:"Ride SkyTrain 1 stop (after security)", walk:"~5 min via SkyTrain" },
+};
+
+const concourseInfo = {
+  domestic: { name:"Domestic Terminal", short:"Domestic", desc:"Main atrium — pre-security & baggage claim level. Food court in North & South atrium quadrants.", color:"#374151", gates:"Atrium (pre-security)" },
+  T: { name:"Concourse T", short:"T", desc:"First concourse after Main TSA checkpoint. Connected directly to Domestic Terminal. Gates T1–T18.", color:"#0f766e", gates:"T1–T18" },
+  A: { name:"Concourse A", short:"A", desc:"Domestic concourse. Gates A1–A34. Accessed via SkyTrain. 3-level layout: Plane Train, gates, and upper restaurant/lounge level.", color:"#1d5bbf", gates:"A1–A34" },
+  B: { name:"Concourse B", short:"B", desc:"Domestic concourse. Gates B1–B36. 2-level layout: Plane Train and gates level. Large restaurant selection.", color:"#7c3aed", gates:"B1–B36" },
+  C: { name:"Concourse C", short:"C", desc:"Domestic concourse. Gates C1–C57. Largest domestic concourse. 2-level layout.", color:"#c2410c", gates:"C1–C57" },
+  D: { name:"Concourse D", short:"D", desc:"Domestic concourse. Gates D1–D46 (D Centerpoint). 3-level layout with mezzanine restaurants. Home to ATL's newest Sky Club.", color:"#b45309", gates:"D1–D46" },
+  E: { name:"Concourse E", short:"E", desc:"International/domestic concourse. Gates E1–E26. Features food court area and One Flew South.", color:"#0369a1", gates:"E1–E26" },
+  F: { name:"Concourse F", short:"F", desc:"International Terminal (Maynard H. Jackson Jr.). Gates F1–F9. Mezzanine level has most dining. Sky Club with Sky Deck.", color:"#1e3a5f", gates:"F1–F9" },
+};
+
+// ─────────────────────────────────────────────
+//  RESTAURANT DIRECTORY DATA
+// ─────────────────────────────────────────────
+// Fields: name, concourse, gateArea, gateNum (for sort), nearbyRest, nearbyLand, skyClubKey, skyClubDist, plainEnglish, tags, hours, assumed
+const DIR = [
+  // ── DOMESTIC TERMINAL ──
+  { name:"Auntie Anne's",        concourse:"domestic", gateArea:"NE Atrium",              gateNum:1,  nearbyRest:["Starbucks","The A Bar & Grill","We Juice It"],      nearbyLand:["Hudson News", "Main security checkpoint", "ATL Welcome Center"],         skyClubKey:"T", skyClubDist:"After security → SkyTrain 1 stop", plainEnglish:"In the northeast corner of the main atrium, steps from Starbucks and the A Bar & Grill.", tags:["snacks"],          hours:"5am–8pm" },
+  { name:"Burger King",          concourse:"domestic", gateArea:"SE Atrium",              gateNum:3,  nearbyRest:["LeeAnn Chin","Popeye's","Taco Bell"],               nearbyLand:["Baggage Claim 4","South atrium", "ATM"],                                  skyClubKey:"T", skyClubDist:"After security → SkyTrain 1 stop", plainEnglish:"Southeast atrium food court cluster — flanked by Popeye's and Taco Bell.", tags:["fast","24hr"],      hours:"5am–2:30am" },
+  { name:"IHOP Express",         concourse:"domestic", gateArea:"SW Atrium",              gateNum:4,  nearbyRest:["T.J.'s Sandwiches"],                                nearbyLand:["Baggage Claim 2 South", "Ground transportation"],                        skyClubKey:"T", skyClubDist:"After security → SkyTrain 1 stop", plainEnglish:"Across from Baggage Claim 2 South, near T.J.'s Sandwiches.", tags:["breakfast"],        hours:"5am–11pm" },
+  { name:"LeeAnn Chin",          concourse:"domestic", gateArea:"SE Atrium",              gateNum:3,  nearbyRest:["Burger King","Popeye's","Taco Bell"],               nearbyLand:["South atrium food court","Baggage Claim 4"],                              skyClubKey:"T", skyClubDist:"After security → SkyTrain 1 stop", plainEnglish:"In the SE atrium food court, right beside Popeye's and Taco Bell.", tags:[],                   hours:"9am–10pm" },
+  { name:"Popeye's",             concourse:"domestic", gateArea:"SE Atrium",              gateNum:3,  nearbyRest:["Burger King","LeeAnn Chin","Taco Bell"],            nearbyLand:["Baggage Claim 4","South atrium food court"],                             skyClubKey:"T", skyClubDist:"After security → SkyTrain 1 stop", plainEnglish:"SE food court, directly next to Burger King and Taco Bell.", tags:["fast"],             hours:"6am–10pm" },
+  { name:"Starbucks",            concourse:"domestic", gateArea:"NE Atrium",              gateNum:1,  nearbyRest:["Auntie Anne's","The A Bar & Grill"],                nearbyLand:["ATL Welcome Center","Main security entry","Hudson News"],                 skyClubKey:"T", skyClubDist:"After security → SkyTrain 1 stop", plainEnglish:"NE atrium, next to Auntie Anne's. Open 24 hours — one of the few late-night options pre-security.", tags:["coffee","24hr"],    hours:"24 hours" },
+  { name:"T.J.'s Sandwiches",   concourse:"domestic", gateArea:"SW Atrium",              gateNum:4,  nearbyRest:["IHOP Express"],                                     nearbyLand:["Baggage Claim 2 South","Ground transportation curb"],                     skyClubKey:"T", skyClubDist:"After security → SkyTrain 1 stop", plainEnglish:"Opposite Baggage Claim 2 South, next to IHOP Express.", tags:[],                   hours:"6am–10pm" },
+  { name:"Taco Bell",            concourse:"domestic", gateArea:"SE Atrium",              gateNum:3,  nearbyRest:["Burger King","LeeAnn Chin","Popeye's"],             nearbyLand:["South atrium food court","Baggage Claim 4"],                             skyClubKey:"T", skyClubDist:"After security → SkyTrain 1 stop", plainEnglish:"SE atrium food court — part of the fast-food cluster with Burger King and Popeye's.", tags:["fast"],             hours:"6am–10pm" },
+  { name:"TGI Fridays",          concourse:"domestic", gateArea:"NW Atrium",              gateNum:2,  nearbyRest:["We Juice It"],                                      nearbyLand:["Baggage Claim 3 North","SkyTrain elevator"],                              skyClubKey:"T", skyClubDist:"After security → SkyTrain 1 stop", plainEnglish:"Across from Baggage Claim 3 North, near We Juice It.", tags:["bar"],              hours:"7:30am–11pm" },
+  { name:"The A Bar & Grill",    concourse:"domestic", gateArea:"NE Atrium",              gateNum:1,  nearbyRest:["Auntie Anne's","Starbucks"],                        nearbyLand:["Main security checkpoint","Hudson News","ATL Welcome Center"],           skyClubKey:"T", skyClubDist:"After security → SkyTrain 1 stop", plainEnglish:"NE atrium, right beside Starbucks and Auntie Anne's — good pit stop before or after security.", tags:["bar"],              hours:"6am–10pm" },
+  { name:"We Juice It",          concourse:"domestic", gateArea:"NW Atrium",              gateNum:2,  nearbyRest:["TGI Fridays"],                                      nearbyLand:["Baggage Claim 3 North","Elevator to Concourse T"],                        skyClubKey:"T", skyClubDist:"After security → SkyTrain 1 stop", plainEnglish:"NW atrium near TGI Fridays, close to elevators leading down to SkyTrain.", tags:["healthy"],          hours:"7am–10pm" },
+
+  // ── CONCOURSE T ──
+  { name:"Dunkin' Donuts",       concourse:"T", gateArea:"Gate T3",     gateNum:3,  nearbyRest:["Jamba Juice"],                                        nearbyLand:["Gates T1–T4","Men's/Women's restrooms"],                                 skyClubKey:"T", skyClubDist:"~3 min walk toward T6", plainEnglish:"Near Gate T3, right next to Jamba Juice. Near the terminal entrance.", tags:["coffee","breakfast"], hours:"5am–10pm" },
+  { name:"Jamba Juice",          concourse:"T", gateArea:"Gate T3",     gateNum:3,  nearbyRest:["Dunkin' Donuts"],                                     nearbyLand:["Gates T1–T4","ATL Shops by Hudson"],                                     skyClubKey:"T", skyClubDist:"~3 min walk toward T6", plainEnglish:"Beside Dunkin' Donuts near Gate T3, one of the first spots as you enter Concourse T.", tags:["healthy"],          hours:"6am–10pm" },
+  { name:"Coffee Bean & Tea Leaf",concourse:"T",gateArea:"Gate T6",     gateNum:6,  nearbyRest:["Subway","Delta Sky Club T"],                          nearbyLand:["Delta Sky Club T","Gates T5–T7","Newsstand"],                            skyClubKey:"T", skyClubDist:"Steps away — Sky Club is right here", plainEnglish:"Near Gate T6, directly beside the Delta Sky Club T entrance and Subway.", tags:["coffee","early"],   hours:"4:30am–10pm" },
+  { name:"Subway",               concourse:"T", gateArea:"Gate T6–T7",  gateNum:7,  nearbyRest:["Coffee Bean & Tea Leaf","Bojangles"],                  nearbyLand:["Delta Sky Club T","Gate T7","Newsstand"],                                skyClubKey:"T", skyClubDist:"Steps away — Sky Club is right here", plainEnglish:"Near Gates T6–T7, a few steps from Coffee Bean and right next to Bojangles.", tags:["fast"],             hours:"6am–10:30pm" },
+  { name:"Bojangles",            concourse:"T", gateArea:"Gate T7",     gateNum:7,  nearbyRest:["Subway","Coffee Bean & Tea Leaf"],                    nearbyLand:["Delta Sky Club T","Gate T7","Concourse T center"],                       skyClubKey:"T", skyClubDist:"~2 min walk to T6", plainEnglish:"Gate T7, just past Subway coming from the terminal. Great breakfast biscuits early morning.", tags:["atl","breakfast"],  hours:"5am–11pm" },
+  { name:"Harvest & Grounds",    concourse:"T", gateArea:"Gate T10",    gateNum:10, nearbyRest:["Maddio's Pizza"],                                     nearbyLand:["Gate T10","Concourse T center area","ATL art installations"],           skyClubKey:"T", skyClubDist:"~4 min walk back toward T6", plainEnglish:"Mid-concourse near Gate T10, sharing space with Maddio's Pizza. Known for specialty coffee and avocado toast.", tags:["coffee","breakfast"], hours:"4:30am–10pm" },
+  { name:"Maddio's Pizza",       concourse:"T", gateArea:"Gate T10",    gateNum:10, nearbyRest:["Harvest & Grounds","Grindhouse Burgers"],              nearbyLand:["Gate T10","Gate T11","Concourse T center"],                              skyClubKey:"T", skyClubDist:"~4 min walk back toward T6", plainEnglish:"Near Gate T10, right beside Harvest & Grounds coffee. Build-your-own pizza in under 7 minutes.", tags:[],                   hours:"7am–10pm" },
+  { name:"Grindhouse Burgers",   concourse:"T", gateArea:"Gate T11",    gateNum:11, nearbyRest:["Maddio's Pizza","Goldberg's Bagels"],                  nearbyLand:["Gate T11","Gate T12"],                                                   skyClubKey:"T", skyClubDist:"~5 min walk back toward T6", plainEnglish:"Near Gate T11, right after Maddio's Pizza heading toward the far end of T.", tags:["atl"],              hours:"5am–10pm" },
+  { name:"Goldberg's Bagels",    concourse:"T", gateArea:"Gate T12",    gateNum:12, nearbyRest:["Grindhouse Burgers","Atlanta Stillhouse"],             nearbyLand:["Gate T12","Gate T14"],                                                   skyClubKey:"T", skyClubDist:"~6 min walk back toward T6", plainEnglish:"Gate T12, between Grindhouse Burgers and Atlanta Stillhouse. Best NY-style bagels at ATL.", tags:["breakfast","early"],hours:"5am–10pm" },
+  { name:"Atlanta Stillhouse",   concourse:"T", gateArea:"Gate T14",    gateNum:14, nearbyRest:["Goldberg's Bagels","Auntie Anne's"],                  nearbyLand:["Gate T14","Gate T15","ATL artwork"],                                     skyClubKey:"T", skyClubDist:"~7 min walk back toward T6", plainEnglish:"Gate T14, steps from Auntie Anne's and Goldberg's. ATL's airport bourbon bar — look for the whiskey bottles display.", tags:["bar","atl"],        hours:"5am–10pm" },
+  { name:"Auntie Anne's",        concourse:"T", gateArea:"Gate T15",    gateNum:15, nearbyRest:["Atlanta Stillhouse","Tropical Smoothie Cafe"],         nearbyLand:["Gate T15","Gate T16","Gate T18 area"],                                   skyClubKey:"T", skyClubDist:"~8 min walk back toward T6", plainEnglish:"Gate T15, between Atlanta Stillhouse and Tropical Smoothie Cafe near the far end of T.", tags:["snacks"],           hours:"9am–7:30pm" },
+  { name:"Tropical Smoothie Cafe",concourse:"T",gateArea:"Gate T18",    gateNum:18, nearbyRest:["Auntie Anne's"],                                       nearbyLand:["Gate T18","Far end of Concourse T"],                                     skyClubKey:"T", skyClubDist:"~10 min walk back toward T6", plainEnglish:"Farthest point on Concourse T at Gate T18. Near the last few gates.", tags:["healthy"],          hours:"7am–10pm" },
+  { name:"Southern National Market",concourse:"T",gateArea:"Concourse T Center",gateNum:9, nearbyRest:["Starbucks","TGI Fridays","Cantina Laredo","Vino Volo"],nearbyLand:["SkyTrain escalators","Gate T8–T10 area","ATL info kiosk"],          skyClubKey:"T", skyClubDist:"~3 min from T Center toward T6", plainEnglish:"In the heart of Concourse T, near the central SkyTrain escalators. Surrounded by Starbucks and Cantina Laredo.", tags:["atl"],              hours:"6am–10pm" },
+  { name:"Starbucks",            concourse:"T", gateArea:"Concourse T Center",gateNum:9, nearbyRest:["Southern National Market","TGI Fridays","Cantina Laredo"],nearbyLand:["SkyTrain escalators","Central T hub"],                            skyClubKey:"T", skyClubDist:"~3 min from T Center toward T6", plainEnglish:"Central Concourse T hub, opens at 4am — one of ATL's earliest coffee stops.", tags:["coffee","early"],   hours:"4am–10pm" },
+  { name:"TGI Fridays",          concourse:"T", gateArea:"Concourse T Center",gateNum:9, nearbyRest:["Southern National Market","Starbucks","Vino Volo"],nearbyLand:["SkyTrain escalators","Central T hub"],                                  skyClubKey:"T", skyClubDist:"~3 min from T Center toward T6", plainEnglish:"Central Concourse T, right in the main hub area among several other dining options.", tags:["bar"],              hours:"7am–10pm" },
+  { name:"Cantina Laredo",       concourse:"T", gateArea:"Concourse T Center",gateNum:9, nearbyRest:["Southern National Market","TGI Fridays","Starbucks"],nearbyLand:["SkyTrain escalators","Central T hub"],                               skyClubKey:"T", skyClubDist:"~3 min from T Center toward T6", plainEnglish:"Central hub of Concourse T — upscale Mexican with tableside guac.", tags:[],                   hours:"9am–10pm" },
+  { name:"Vino Volo",            concourse:"T", gateArea:"Concourse T Center",gateNum:9, nearbyRest:["TGI Fridays","Cantina Laredo"],                   nearbyLand:["SkyTrain escalators","Central T hub","Gate T8 area"],                    skyClubKey:"T", skyClubDist:"~3 min from T Center toward T6", plainEnglish:"Central Concourse T, between TGI Fridays and Cantina Laredo. Wine bar with flights and cheese boards.", tags:["bar"],              hours:"6:30am–10pm" },
+
+  // ── CONCOURSE A ──
+  { name:"Caribou Coffee",       concourse:"A", gateArea:"Gate A2",     gateNum:2,  nearbyRest:["Asian Chao"],                                         nearbyLand:["Gate A2","SkyTrain escalators to lower level","Concourse A entrance"],  skyClubKey:"A", skyClubDist:"~8 min walk to A17/A19", plainEnglish:"Near the entrance of Concourse A at Gate A2, one of the first spots after riding up the escalator.", tags:["coffee"],          hours:"5:30am–11:30pm" },
+  { name:"Asian Chao",           concourse:"A", gateArea:"Gate A3",     gateNum:3,  nearbyRest:["Caribou Coffee"],                                     nearbyLand:["Gate A3","Gate A4 Boar's Head Kiosk","Newsstand"],                       skyClubKey:"A", skyClubDist:"~7 min walk to A17/A19", plainEnglish:"Gate A3, right beside Caribou Coffee near the A entrance. Quick pan-Asian stir-fry bowls.", tags:[],                   hours:"7am–10pm" },
+  { name:"Sambazon Acai Bowls",  concourse:"A", gateArea:"Gate A9",     gateNum:9,  nearbyRest:["McDonald's"],                                         nearbyLand:["Gate A9","Gate A11 area"],                                               skyClubKey:"A", skyClubDist:"~5 min walk to A17/A19", plainEnglish:"Near Gate A9, a short walk from McDonald's at A11. Healthy açaí bowls and smoothies.", tags:["healthy","veg"],    hours:"6am–10pm" },
+  { name:"McDonald's",           concourse:"A", gateArea:"Gate A11",    gateNum:11, nearbyRest:["Sambazon Acai Bowls","Atlanta Bread & Bar"],           nearbyLand:["Gate A11","Gate A12 area","Newsstand"],                                  skyClubKey:"A", skyClubDist:"~4 min walk to A17/A19", plainEnglish:"Gate A11, between Sambazon (A9) and Atlanta Bread & Bar (A12). Open late Fri–Sat (24 hrs).", tags:["fast","24hr"],      hours:"Sun–Thu 6am–11pm · Fri–Sat 24hrs" },
+  { name:"Atlanta Bread & Bar",  concourse:"A", gateArea:"Gate A12",    gateNum:12, nearbyRest:["McDonald's","Coffee Bean & Tea Leaf","Savannah's Candy Kitchen"],nearbyLand:["Gate A12","Gate A14","Hudson News nearby"],              skyClubKey:"A", skyClubDist:"~3 min walk to A17/A19", plainEnglish:"Gate A12, right next door to Coffee Bean & Tea Leaf. Sandwiches, soups, and craft beer.", tags:["bar"],              hours:"6am–10pm" },
+  { name:"Coffee Bean & Tea Leaf",concourse:"A",gateArea:"Gate A12",    gateNum:12, nearbyRest:["Atlanta Bread & Bar","McDonald's"],                   nearbyLand:["Gate A12","Gate A11","Gate A14"],                                         skyClubKey:"A", skyClubDist:"~3 min walk to A17/A19", plainEnglish:"Shares Gate A12 area with Atlanta Bread & Bar — specialty coffee right beside the bar.", tags:["coffee"],           hours:"5:30am–10pm" },
+  { name:"Savannah's Candy Kitchen",concourse:"A",gateArea:"Gate A14",  gateNum:14, nearbyRest:["Goldberg's Bagels","Atlanta Bread & Bar"],             nearbyLand:["Gate A14","Gate A16","Hudson News"],                                     skyClubKey:"A", skyClubDist:"~2 min walk to A17/A19", plainEnglish:"Gate A14, just before Goldberg's Bagels heading toward center. Famous Georgia pralines and fudge.", tags:["snacks"],           hours:"6am–10pm" },
+  { name:"Goldberg's Bagels",    concourse:"A", gateArea:"Gate A16",    gateNum:16, nearbyRest:["Savannah's Candy Kitchen","Gordon Biersch"],           nearbyLand:["Gate A16","Sky Club A (A17/A19, upstairs)","Gate A18"],                 skyClubKey:"A", skyClubDist:"Steps from Sky Club (A17/A19 upstairs)", plainEnglish:"Gate A16, steps below the Sky Club entrance (A17/A19 upstairs). NY-style bagels with lox.", tags:["breakfast","early"],hours:"4am–10pm" },
+  { name:"Gordon Biersch",       concourse:"A", gateArea:"Gate A18",    gateNum:18, nearbyRest:["Goldberg's Bagels","Low Country"],                    nearbyLand:["Delta Sky Club A (upstairs, 2nd fl)","Gate A18","Gate A17/A19"],        skyClubKey:"A", skyClubDist:"Directly below Sky Club A (2nd floor)", plainEnglish:"Gate A18 — the Sky Club is directly above you on the 2nd floor. Garlic fries + house lager.", tags:["bar"],              hours:"6:30am–10pm" },
+  { name:"Boar's Head Café",     concourse:"A", gateArea:"NW of Center",gateNum:15, nearbyRest:["Chick-Fil-A","P.F. Chang's","Great Wraps"],            nearbyLand:["A Center hub","SkyTrain escalators","Gate A14–A16 area"],               skyClubKey:"A", skyClubDist:"~3 min walk to A17/A19", plainEnglish:"Northwest side of the Concourse A center hub, near Chick-Fil-A and P.F. Chang's cluster.", tags:[],                   hours:"5am–10pm" },
+  { name:"Boardwalk Burgers",    concourse:"A", gateArea:"W of Center", gateNum:16, nearbyRest:["Chick-Fil-A","Great Wraps","Varasano's"],              nearbyLand:["A Center hub","SkyTrain escalators"],                                    skyClubKey:"A", skyClubDist:"~3 min to A17/A19", plainEnglish:"West side of A Center, clustered with Chick-fil-A and Great Wraps. Smash burgers and fries.", tags:[],                   hours:"6am–10pm" },
+  { name:"Brioche Dorée",        concourse:"A", gateArea:"E of Center", gateNum:20, nearbyRest:["Cat Cora's Kitchen","Freshen's"],                      nearbyLand:["A Center hub east side","Gate A20–A25 area"],                            skyClubKey:"A", skyClubDist:"~3 min from A Center", plainEnglish:"East side of A Center, across from the western cluster. French bakery café with croissants.", tags:["coffee","breakfast"],hours:"5:30am–10pm" },
+  { name:"Chick-Fil-A",          concourse:"A", gateArea:"W of Center", gateNum:16, nearbyRest:["Boardwalk Burgers","Great Wraps","P.F. Chang's","Varasano's"],nearbyLand:["A Center hub","SkyTrain escalators","Newsstand"],              skyClubKey:"A", skyClubDist:"~3 min to A17/A19", plainEnglish:"Right in the heart of A Center (west side), surrounded by Boardwalk Burgers, Great Wraps, and Varasano's. Closed Sundays.", tags:["fast"],             hours:"5:30am–10pm (closed Sun)" },
+  { name:"Great Wraps",          concourse:"A", gateArea:"W of Center", gateNum:16, nearbyRest:["Chick-Fil-A","Boardwalk Burgers","Varasano's","P.F. Chang's"],nearbyLand:["A Center hub","SkyTrain escalators"],                          skyClubKey:"A", skyClubDist:"~3 min to A17/A19", plainEnglish:"A Center west hub — sandwiched between Chick-fil-A and Varasano's. Mediterranean-style wraps.", tags:["fast"],             hours:"6am–10pm" },
+  { name:"Low Country",          concourse:"A", gateArea:"W of Center", gateNum:16, nearbyRest:["Gordon Biersch","Chick-Fil-A","Boar's Head Café"],     nearbyLand:["Gate A18 area","A Center hub west"],                                     skyClubKey:"A", skyClubDist:"~3 min to A17/A19 (above)", plainEnglish:"West of A center near Gordon Biersch — Georgia coastal shrimp & grits.", tags:["atl"],              hours:"5:30am–10pm" },
+  { name:"P.F. Chang's",         concourse:"A", gateArea:"W of Center", gateNum:16, nearbyRest:["Chick-Fil-A","Great Wraps","Varasano's","Qdoba"],      nearbyLand:["A Center hub","SkyTrain escalators","Gate A14–A18"],                     skyClubKey:"A", skyClubDist:"~3 min to A17/A19", plainEnglish:"A Center west hub among the main food cluster — full-service Asian fusion with lettuce wraps and sushi.", tags:[],                   hours:"6:30am–10pm" },
+  { name:"Piece of Cake",        concourse:"A", gateArea:"N of Center", gateNum:17, nearbyRest:["Gordon Biersch","Boar's Head Café"],                   nearbyLand:["Gate A17/A18 area","Sky Club entrance (upstairs)"],                      skyClubKey:"A", skyClubDist:"Right below Sky Club A", plainEnglish:"North of A center, directly below the Sky Club entrance stairs. Atlanta's famous layer cake slices.", tags:["snacks"],           hours:"5am–10pm" },
+  { name:"Qdoba",                concourse:"A", gateArea:"W of Center", gateNum:16, nearbyRest:["P.F. Chang's","Chick-Fil-A","Great Wraps"],            nearbyLand:["A Center hub","SkyTrain escalators"],                                    skyClubKey:"A", skyClubDist:"~3 min to A17/A19", plainEnglish:"A Center west cluster, right in the main food court area with P.F. Chang's and Chick-fil-A.", tags:[],                   hours:"6am–10pm" },
+  { name:"Varasano's Pizzeria",  concourse:"A", gateArea:"W of Center", gateNum:16, nearbyRest:["Chick-Fil-A","Great Wraps","Boardwalk Burgers"],       nearbyLand:["A Center hub","SkyTrain escalators"],                                    skyClubKey:"A", skyClubDist:"~3 min to A17/A19", plainEnglish:"A Center west — ATL's award-winning Neapolitan pizza in the heart of the food cluster.", tags:["atl"],              hours:"7am–10pm" },
+  { name:"Cat Cora's Kitchen",   concourse:"A", gateArea:"Gate A25",    gateNum:25, nearbyRest:["Freshen's","Brioche Dorée"],                           nearbyLand:["Gate A25","Gate A26","Gate A28 area"],                                   skyClubKey:"A", skyClubDist:"~5 min walk back toward A17", plainEnglish:"Gate A25, sharing space with Freshen's. Celebrity chef Mediterranean — east side of Concourse A.", tags:["atl"],              hours:"6am–10pm" },
+  { name:"Freshen's",            concourse:"A", gateArea:"Gate A25–26", gateNum:26, nearbyRest:["Cat Cora's Kitchen","Shake Shack"],                   nearbyLand:["Gate A25","Gate A26","Gate A28"],                                         skyClubKey:"A", skyClubDist:"~5 min walk back toward A17", plainEnglish:"Near Gates A25–A26, between Cat Cora's Kitchen and Shake Shack. Smoothies and light bites.", tags:["healthy"],          hours:"7am–11pm" },
+  { name:"Shake Shack",          concourse:"A", gateArea:"Gate A28",    gateNum:28, nearbyRest:["Freshen's","Boar's Head Kiosk","Atlanta Hawks Bar"],   nearbyLand:["Gate A28","Boar's Head Kiosk (same spot)","Gate A34 area"],             skyClubKey:"A", skyClubDist:"~8 min walk back toward A17", plainEnglish:"Gate A28, right next to the Boar's Head Kiosk. Expect a line — use the mobile app to order ahead.", tags:[],                   hours:"6am–10:30pm" },
+  { name:"Boar's Head Kiosk",    concourse:"A", gateArea:"Gate A28",    gateNum:28, nearbyRest:["Shake Shack","Atlanta Hawks Bar"],                     nearbyLand:["Gate A28","Gate A29–A34 area"],                                          skyClubKey:"A", skyClubDist:"~8 min walk back toward A17", plainEnglish:"Gate A28, right beside Shake Shack — grab-and-go deli sandwiches.", tags:[],                   hours:"6am–10pm",   assumed:true },
+  { name:"Atlanta Hawks Bar",    concourse:"A", gateArea:"Gate A34",    gateNum:34, nearbyRest:["Shake Shack","Boar's Head Kiosk"],                     nearbyLand:["Gate A34","Far end of Concourse A"],                                     skyClubKey:"A", skyClubDist:"~12 min walk back toward A17", plainEnglish:"Far end of Concourse A at Gate A34 — Hawks-themed bar. Last stop before the gates.", tags:["bar","atl"],        hours:"7am–10pm" },
+
+  // ── CONCOURSE B ──
+  { name:"Coffee Beanery",       concourse:"B", gateArea:"Gate B3",     gateNum:3,  nearbyRest:["Atlanta Bread Company"],                              nearbyLand:["Gate B3","Concourse B entrance","SkyTrain escalators"],                  skyClubKey:"B", skyClubDist:"~10 min walk to B18", plainEnglish:"Near the Concourse B entrance at Gate B3, one of the first spots after escalating up.", tags:["coffee"],           hours:"6am–10pm" },
+  { name:"Atlanta Bread Company",concourse:"B", gateArea:"Gate B7",     gateNum:7,  nearbyRest:["TGI Fridays","Freshen's","Blue Moon Brewhouse"],      nearbyLand:["Gate B7","Gate B8–B9 area","Newsstand"],                                 skyClubKey:"B", skyClubDist:"~8 min walk to B18", plainEnglish:"Gate B7 area, near TGI Fridays at B8 and Freshen's at B9. Artisan sandwiches and soups.", tags:["breakfast"],        hours:"9am–9pm" },
+  { name:"TGI Fridays",          concourse:"B", gateArea:"Gate B8 & W Center",gateNum:8,nearbyRest:["Atlanta Bread Company","Freshen's","Blue Moon Brewhouse"],nearbyLand:["Gate B8","Gate B9","B Center west"],                            skyClubKey:"B", skyClubDist:"~7 min walk to B18", plainEnglish:"Near Gate B8 (second location also in B Center west) — right beside Atlanta Bread Company.", tags:["bar"],              hours:"6am–10pm" },
+  { name:"Freshen's",            concourse:"B", gateArea:"Gate B9",     gateNum:9,  nearbyRest:["TGI Fridays","Blue Moon Brewhouse"],                  nearbyLand:["Gate B9","Gate B10–B11 area"],                                           skyClubKey:"B", skyClubDist:"~7 min walk to B18", plainEnglish:"Gate B9, right beside Blue Moon Brewhouse — smoothies as a lighter option next to the beer taproom.", tags:["healthy"],          hours:"6am–10pm" },
+  { name:"Proof of the Pudding", concourse:"B", gateArea:"Gates B10 & B24",gateNum:10,nearbyRest:["Blue Moon Brewhouse","Starbucks"],                  nearbyLand:["Gate B10","Gate B11","Hudson News"],                                     skyClubKey:"B", skyClubDist:"~5 min walk to B18", plainEnglish:"Two locations: Gate B10 (near Blue Moon) and Gate B24. Upscale Southern café.", tags:["atl"],              hours:"7am–10pm" },
+  { name:"CAVA",                  concourse:"B", gateArea:"SW of Center", gateNum:17, nearbyRest:["Wendy's","Willy's Mexican Grill","Paschal's"],          nearbyLand:["B Center hub","SW of Center next to Wendy's","SkyTrain escalators"],  skyClubKey:"B", skyClubDist:"~2 min walk to B18 Sky Club", plainEnglish:"SW of B Center hub, right next to Wendy's — build-your-own Mediterranean bowls, pitas and greens.", tags:["healthy"],         hours:"10am–10pm" },
+  { name:"Blue Moon Brewhouse",  concourse:"B", gateArea:"Gate B11",    gateNum:11, nearbyRest:["Freshen's","TGI Fridays","Proof of the Pudding"],     nearbyLand:["Gate B11","Gate B10","Gate B13 area"],                                   skyClubKey:"B", skyClubDist:"~5 min walk to B18", plainEnglish:"Gate B11 — between Freshen's and Popeyes. Blue Moon taproom with pub bites.", tags:["bar"],              hours:"6am–10pm" },
+  { name:"Popeyes",              concourse:"B", gateArea:"Gate B13",    gateNum:13, nearbyRest:["Blue Moon Brewhouse","Starbucks"],                    nearbyLand:["Gate B13","Gate B15 Starbucks","Newsstand"],                             skyClubKey:"B", skyClubDist:"~3 min walk to B18", plainEnglish:"Gate B13, right before Starbucks at B15. Between the Blue Moon taproom and the Sky Club.", tags:["fast"],             hours:"6am–11pm" },
+  { name:"Starbucks",            concourse:"B", gateArea:"Gate B15",    gateNum:15, nearbyRest:["Popeyes","Samuel Adams Bar"],                         nearbyLand:["Gate B15","Delta Sky Club B (Gate B18)","Gate B16–B18"],                 skyClubKey:"B", skyClubDist:"~2 min walk — right next to Sky Club B at B18", plainEnglish:"Gate B15, practically at the Sky Club door (B18 is next). Open 24 hours.", tags:["coffee","24hr"],    hours:"24 hours" },
+  { name:"Samuel Adams Bar",     concourse:"B", gateArea:"W of Center", gateNum:17, nearbyRest:["Starbucks","Fresh To Order","Paschal's"],              nearbyLand:["B Center hub","Sky Club B (near B18)","SkyTrain escalators"],           skyClubKey:"B", skyClubDist:"~2 min walk — right in Sky Club area", plainEnglish:"B Center west, directly near the Sky Club entrance area. Boston lager + bar bites.", tags:["bar"],              hours:"6am–10pm" },
+  { name:"Fresh To Order",       concourse:"B", gateArea:"W of Center", gateNum:17, nearbyRest:["Paschal's","Samuel Adams Bar","Wendy's","Willy's Mexican Grill"],nearbyLand:["B Center hub","Sky Club B","SkyTrain escalators"],           skyClubKey:"B", skyClubDist:"~2 min walk — right in Sky Club area", plainEnglish:"B Center west hub, right near the Sky Club. Farm-to-table quick service — highly rated for quality.", tags:["healthy"],          hours:"6am–10pm" },
+  { name:"Paschal's",            concourse:"B", gateArea:"W of Center", gateNum:17, nearbyRest:["Fresh To Order","Samuel Adams Bar","Wendy's"],         nearbyLand:["B Center hub","Sky Club B nearby","SkyTrain escalators"],               skyClubKey:"B", skyClubDist:"~2 min walk to B18 Sky Club", plainEnglish:"B Center west — Atlanta's legendary soul food institution since 1947. Right in the center hub.", tags:["atl","black-owned"],hours:"6am–11pm" },
+  { name:"Asian Chao",           concourse:"B", gateArea:"W of Center", gateNum:17, nearbyRest:["Wendy's","Paschal's","Willy's Mexican Grill"],         nearbyLand:["B Center hub","SkyTrain escalators","Gate B17–B18"],                    skyClubKey:"B", skyClubDist:"~2 min walk to B18 Sky Club", plainEnglish:"B Center west food cluster — pan-Asian stir-fry bowls among the main dining hub.", tags:[],                   hours:"6am–10pm" },
+  { name:"Roast",                concourse:"B", gateArea:"W of Center", gateNum:17, nearbyRest:["Samuel Adams Bar","Fresh To Order","Savi Provisions"],  nearbyLand:["B Center hub","Sky Club B","Gate B17–B18"],                              skyClubKey:"B", skyClubDist:"~2 min walk to B18 Sky Club", plainEnglish:"B Center west, next to Samuel Adams Bar and Savi Provisions. Specialty single-origin coffee.", tags:["coffee"],           hours:"6am–10pm" },
+  { name:"Savi Provisions Cafe", concourse:"B", gateArea:"W of Center", gateNum:17, nearbyRest:["Roast","Fresh To Order","Samuel Adams Bar"],           nearbyLand:["B Center hub","Hudson News","Sky Club B"],                               skyClubKey:"B", skyClubDist:"~2 min walk to B18 Sky Club", plainEnglish:"B Center west — ATL artisan market with wine, cheese boards and local specialty goods.", tags:["atl"],              hours:"7am–10pm" },
+  { name:"Savannah's Candy Kitchen",concourse:"B",gateArea:"NW of Center",gateNum:18,nearbyRest:["Samuel Adams Bar","Roast"],                          nearbyLand:["B Center hub north","Sky Club B entrance area"],                          skyClubKey:"B", skyClubDist:"Steps from Sky Club B", plainEnglish:"North of B Center, almost at the Sky Club entrance. Georgia pralines and Southern sweets.", tags:["snacks"],           hours:"6:30am–10pm" },
+  { name:"Wendy's",              concourse:"B", gateArea:"SW of Center",gateNum:17, nearbyRest:["CAVA","Asian Chao","Willy's Mexican Grill","Paschal's"],       nearbyLand:["B Center hub","SkyTrain escalators"],                                    skyClubKey:"B", skyClubDist:"~2 min walk to B18 Sky Club", plainEnglish:"B Center southwest, part of the main food cluster. Made-to-order burgers and Frosties.", tags:["fast"],             hours:"6:30am–10pm" },
+  { name:"Willy's Mexican Grill",concourse:"B", gateArea:"SW of Center",gateNum:17, nearbyRest:["Wendy's","Asian Chao","Paschal's"],                   nearbyLand:["B Center hub","SkyTrain escalators"],                                    skyClubKey:"B", skyClubDist:"~2 min walk to B18 Sky Club", plainEnglish:"B Center southwest hub, beside Wendy's. Atlanta-born burrito chain.", tags:["atl"],              hours:"6am–10pm" },
+  { name:"Auntie Anne's",        concourse:"B", gateArea:"Gate B23",    gateNum:23, nearbyRest:["Proof of the Pudding"],                               nearbyLand:["Gate B23","Gate B24 Proof of the Pudding"],                              skyClubKey:"B", skyClubDist:"~4 min walk back toward B18", plainEnglish:"Gate B23, right before the second Proof of the Pudding at B24. Soft pretzels east of center.", tags:["snacks"],           hours:"6am–10pm" },
+  { name:"Bobby's Burger Palace",concourse:"B", gateArea:"Gate B26",    gateNum:26, nearbyRest:["ATL Shops by Hudson","Dunkin' Donuts"],               nearbyLand:["Gate B26","Gate B26 cluster (ATL Hudson, Dunkin')"],                     skyClubKey:"B", skyClubDist:"~6 min walk back toward B18", plainEnglish:"Gate B26, right next to ATL Shops and Dunkin'. Bobby Flay's gourmet burgers.", tags:[],                   hours:"6am–10pm" },
+  { name:"ATL Shops by Hudson",  concourse:"B", gateArea:"Gate B26",    gateNum:26, nearbyRest:["Bobby's Burger Palace","Dunkin' Donuts"],              nearbyLand:["Gate B26","Gate B24–B28 area"],                                          skyClubKey:"B", skyClubDist:"~6 min walk back toward B18", plainEnglish:"Gate B26, sharing space with Dunkin' Donuts and Bobby's Burger Palace. Travel essentials and snacks.", tags:[],                   hours:"6:30am–10pm" },
+  { name:"Dunkin' Donuts",       concourse:"B", gateArea:"Gate B26",    gateNum:26, nearbyRest:["Bobby's Burger Palace","ATL Shops by Hudson"],         nearbyLand:["Gate B26","ATL Hudson Shop"],                                             skyClubKey:"B", skyClubDist:"~6 min walk back toward B18", plainEnglish:"Gate B26, right inside ATL Shops by Hudson. Donuts and coffee near the far end of B.", tags:["coffee","breakfast"],hours:"6am–9pm" },
+  { name:"SweetWater Bar & Grill",concourse:"B",gateArea:"Gate B31",    gateNum:31, nearbyRest:["Boar's Head Kiosk","Atlanta Bagel Co."],               nearbyLand:["Gate B31","Gate B33","Boar's Head Kiosk (same spot)"],                   skyClubKey:"B", skyClubDist:"~9 min walk back toward B18", plainEnglish:"Gate B31, right beside the Boar's Head Kiosk and close to Atlanta Bagel Co. ATL's SweetWater craft beer.", tags:["bar","atl"],        hours:"6am–10pm" },
+  { name:"Boar's Head Kiosk",    concourse:"B", gateArea:"Gate B31",    gateNum:31, nearbyRest:["SweetWater Bar & Grill","Atlanta Bagel Co."],          nearbyLand:["Gate B31","Gate B33","Far end of B"],                                    skyClubKey:"B", skyClubDist:"~9 min walk back toward B18", plainEnglish:"Gate B31, right next to SweetWater Bar. Grab-and-go Boar's Head sandwiches near far end of B.", tags:[],                   hours:"8am–10pm" },
+  { name:"Atlanta Bagel Co.",    concourse:"B", gateArea:"Gate B33",    gateNum:33, nearbyRest:["SweetWater Bar & Grill","Boar's Head Kiosk"],          nearbyLand:["Gate B33","Gate B36","Far end of Concourse B"],                          skyClubKey:"B", skyClubDist:"~11 min walk back toward B18", plainEnglish:"Gate B33, near the far end of Concourse B next to SweetWater Bar. Fresh bagels and deli sandwiches.", tags:["breakfast"],        hours:"8am–10pm" },
+
+  // ── CONCOURSE C ──
+  { name:"The Pecan Bar",        concourse:"C", gateArea:"Gate C6",     gateNum:6,  nearbyRest:["La Madeleine"],                                       nearbyLand:["Gate C6","Gate C7 La Madeleine","Entrance of Concourse C"],             skyClubKey:"C", skyClubDist:"~20 min walk to C37 (or SkyTrain)", plainEnglish:"Near the C entrance at Gate C6, right before La Madeleine at C7. Sophisticated cocktail lounge with pecan spirits.", tags:["bar","atl"],        hours:"M–F 9am–10pm" },
+  { name:"La Madeleine",         concourse:"C", gateArea:"Gates C7 & C40",gateNum:7,nearbyRest:["The Pecan Bar","Charley's Philly Steaks","Famous Famiglia"],nearbyLand:["Gate C7","Gate C12 cluster","open 24hrs"],                          skyClubKey:"C", skyClubDist:"~15 min walk to C37 (west location)", plainEnglish:"Two locations: Gate C7 (near entrance) and Gate C40 (near far end). Open 24 hours — both locations.", tags:["breakfast","24hr"],  hours:"24 hours (both)" },
+  { name:"Charley's Philly Steaks",concourse:"C",gateArea:"Gate C12",   gateNum:12, nearbyRest:["Famous Famiglia","Longhorn Steakhouse","El Taco"],     nearbyLand:["Gate C12","Gate C13–C14 cluster","Newsstand"],                           skyClubKey:"C", skyClubDist:"~15 min walk to C37", plainEnglish:"Gate C12, sharing the area with Famous Famiglia — Philly cheesesteaks right before Longhorn at C13.", tags:[],                   hours:"7am–10pm" },
+  { name:"Famous Famiglia",      concourse:"C", gateArea:"Gate C12",    gateNum:12, nearbyRest:["Charley's Philly Steaks","Longhorn Steakhouse"],       nearbyLand:["Gate C12","Gate C13","Gate C14 cluster"],                                skyClubKey:"C", skyClubDist:"~15 min walk to C37", plainEnglish:"Gate C12, right beside Charley's Philly Steaks. NY-style pizza by the giant slice.", tags:[],                   hours:"6am–10pm" },
+  { name:"Longhorn Steakhouse",  concourse:"C", gateArea:"Gate C13",    gateNum:13, nearbyRest:["Famous Famiglia","Charley's Philly Steaks","El Taco"], nearbyLand:["Gate C13","Gate C12–C14 cluster"],                                        skyClubKey:"C", skyClubDist:"~15 min walk to C37", plainEnglish:"Gate C13, between the pizza/cheesesteak options at C12 and tacos at C14. Full-service Texas steakhouse.", tags:[],                   hours:"5:30am–10pm" },
+  { name:"El Taco",              concourse:"C", gateArea:"Gate C14",    gateNum:14, nearbyRest:["Jersey Mike's Subs","Longhorn Steakhouse"],            nearbyLand:["Gate C14","Gate C12–C14 cluster","Newsstand"],                           skyClubKey:"C", skyClubDist:"~13 min walk to C37", plainEnglish:"Gate C14, right next to Jersey Mike's. Atlanta-born street taqueria sharing the same gate cluster.", tags:[],                   hours:"6am–10pm" },
+  { name:"Jersey Mike's Subs",   concourse:"C", gateArea:"Gate C14",    gateNum:14, nearbyRest:["El Taco","Longhorn Steakhouse"],                      nearbyLand:["Gate C14","Gate C12–C13 area"],                                          skyClubKey:"C", skyClubDist:"~13 min walk to C37", plainEnglish:"Gate C14, right beside El Taco — fresh-sliced deli subs at the same gate cluster as Longhorn.", tags:[],                   hours:"8am–9pm" },
+  { name:"Starbucks",            concourse:"C", gateArea:"Gate C16",    gateNum:16, nearbyRest:["Auntie Anne's","Chick-fil-A"],                        nearbyLand:["Gate C16","Gate C17","Gate C21 area"],                                   skyClubKey:"C", skyClubDist:"~12 min walk to C37", plainEnglish:"Gate C16, right before Auntie Anne's at C17 and Chick-fil-A at C21. Note: C37 Starbucks is open 24 hrs.", tags:["coffee"],           hours:"C16: 5am–10pm · C37: 24 hrs" },
+  { name:"Auntie Anne's",        concourse:"C", gateArea:"Gate C17",    gateNum:17, nearbyRest:["Starbucks","Chick-fil-A"],                            nearbyLand:["Gate C17","Gate C16","Gate C21"],                                         skyClubKey:"C", skyClubDist:"~12 min walk to C37", plainEnglish:"Gate C17, right between Starbucks (C16) and Chick-fil-A (C21). Pretzels mid-concourse.", tags:["snacks"],           hours:"6am–10pm" },
+  { name:"Chick-fil-A",          concourse:"C", gateArea:"Gate C21",    gateNum:21, nearbyRest:["Carrabba's Italian Grill","Auntie Anne's"],           nearbyLand:["Gate C21","Gate C22","Gate C17"],                                         skyClubKey:"C", skyClubDist:"~10 min walk to C37", plainEnglish:"Gate C21, right beside Carrabba's at C22. Closed Sundays.", tags:["fast"],             hours:"5:30am–10pm (closed Sun)" },
+  { name:"Carrabba's Italian Grill",concourse:"C",gateArea:"Gate C22",  gateNum:22, nearbyRest:["Chick-fil-A","Bantam & Biddy"],                      nearbyLand:["Gate C22","Gate C21","NW Center area"],                                  skyClubKey:"C", skyClubDist:"~10 min walk to C37", plainEnglish:"Gate C22, right beside Chick-fil-A at C21. Full-service Italian with handmade pasta.", tags:[],                   hours:"6am–10pm" },
+  { name:"Bantam & Biddy",       concourse:"C", gateArea:"NW of Center",gateNum:25, nearbyRest:["Carrabba's Italian Grill","Burger King","Fresh Healthy Cafe"],nearbyLand:["C Center hub north-west","SkyTrain escalators","Gate C25–C30 area"],skyClubKey:"C", skyClubDist:"~7 min walk to C37", plainEnglish:"Northwest of C center — ATL's beloved rotisserie chicken spot. Gluten-free options, all-day breakfast.", tags:["atl","healthy"],    hours:"8am–10pm" },
+  { name:"Atlanta Bread Company",concourse:"C", gateArea:"Gate C30",    gateNum:30, nearbyRest:["Links Grill"],                                        nearbyLand:["Gate C30","Gate C28–C32 area"],                                          skyClubKey:"C", skyClubDist:"~5 min walk to C37", plainEnglish:"Gate C30, right beside Links Grill. Artisan sandwiches and soups near the east side of C.", tags:["breakfast"],        hours:"6am–10pm" },
+  { name:"Links Grill",          concourse:"C", gateArea:"Gate C30",    gateNum:30, nearbyRest:["Atlanta Bread Company","Starbucks C37"],              nearbyLand:["Gate C30","Gate C37 Starbucks nearby","Sky Club C area"],                skyClubKey:"C", skyClubDist:"~5 min walk to C37", plainEnglish:"Gate C30, sharing space with Atlanta Bread Company — sports grill just before the Sky Club area.", tags:["bar"],              hours:"10am–10pm" },
+  { name:"Five Guys Burgers & Fries",concourse:"C",gateArea:"Gate C41", gateNum:41, nearbyRest:["Sbarro's","Sweet Georgia's Juke Joint","Baja Fresh"], nearbyLand:["Gate C41","Gate C42 cluster","Gate C44"],                                skyClubKey:"C", skyClubDist:"~3 min walk back toward C37", plainEnglish:"Gate C41, right before the Sbarro/Sweet Georgia cluster at C42. Made-to-order burgers.", tags:[],                   hours:"6am–10pm" },
+  { name:"Sbarro's",             concourse:"C", gateArea:"Gate C42",    gateNum:42, nearbyRest:["Sweet Georgia's Juke Joint","Five Guys"],             nearbyLand:["Gate C42","Gate C41","Gate C44 Baja Fresh"],                             skyClubKey:"C", skyClubDist:"~4 min walk back toward C37", plainEnglish:"Gate C42, right next to Sweet Georgia's Juke Joint. NY-style pizza by the slice.", tags:[],                   hours:"7am–10pm" },
+  { name:"Sweet Georgia's Juke Joint",concourse:"C",gateArea:"Gate C42",gateNum:42, nearbyRest:["Sbarro's","Five Guys","Baja Fresh"],                  nearbyLand:["Gate C42","Gate C41","Gate C44","ATL artwork"],                          skyClubKey:"C", skyClubDist:"~4 min walk back toward C37", plainEnglish:"Gate C42, directly beside Sbarro's near the far end of C. Southern soul food with a live-music vibe.", tags:["atl"],              hours:"6am–10pm" },
+  { name:"Baja Fresh",           concourse:"C", gateArea:"Gate C44",    gateNum:44, nearbyRest:["Sweet Georgia's Juke Joint","Sbarro's"],              nearbyLand:["Gate C44","Gate C42–C43","Far end of C"],                                skyClubKey:"C", skyClubDist:"~5 min walk back toward C37", plainEnglish:"Gate C44 — far end of Concourse C near the last gates. Fresh Mexican burritos, no cans or freezers.", tags:[],                   hours:"6am–10pm" },
+  { name:"Burger King",          concourse:"C", gateArea:"W of Center", gateNum:25, nearbyRest:["Bantam & Biddy","Fresh Healthy Cafe","Great Wraps"],  nearbyLand:["C Center hub","SkyTrain escalators"],                                    skyClubKey:"C", skyClubDist:"~7 min walk to C37", plainEnglish:"West of C center hub, near Bantam & Biddy. Open 24 hours.", tags:["fast","24hr"],      hours:"24 hours" },
+  { name:"Fresh Healthy Cafe",   concourse:"C", gateArea:"W of Center", gateNum:25, nearbyRest:["Bantam & Biddy","Burger King","Great Wraps"],         nearbyLand:["C Center hub","SkyTrain escalators"],                                    skyClubKey:"C", skyClubDist:"~7 min walk to C37", plainEnglish:"C Center west hub among the main dining cluster — health-forward wraps and smoothies.", tags:["healthy","veg"],    hours:"7am–10pm" },
+  { name:"Great Wraps",          concourse:"C", gateArea:"NE of Center",gateNum:30, nearbyRest:["LeeAnn Chin","Umaizushi","Salad Works"],              nearbyLand:["C Center hub north-east"],                                               skyClubKey:"C", skyClubDist:"~7 min walk to C37", plainEnglish:"Northeast of C center — Mediterranean wraps among the NE dining cluster with LeeAnn Chin and Umaizushi.", tags:["fast"],             hours:"7am–10pm" },
+  { name:"Krispy Kreme",         concourse:"C", gateArea:"E of Center", gateNum:30, nearbyRest:["Salad Works","LeeAnn Chin"],                          nearbyLand:["C Center hub east side"],                                                skyClubKey:"C", skyClubDist:"~7 min walk to C37", plainEnglish:"East of C center — hot-light doughnuts on the east side of the concourse.", tags:["breakfast"],        hours:"5am–9pm" },
+  { name:"LeeAnn Chin",          concourse:"C", gateArea:"NE of Center",gateNum:30, nearbyRest:["Umaizushi","Great Wraps","Krispy Kreme"],             nearbyLand:["C Center hub north-east"],                                               skyClubKey:"C", skyClubDist:"~7 min walk to C37", plainEnglish:"NE of C center, right beside Umaizushi. American-Chinese in the northeast dining cluster.", tags:[],                   hours:"10am–10pm" },
+  { name:"Duff's Deli + Market", concourse:"C", gateArea:"C Centerpoint",gateNum:30, nearbyRest:["Bantam & Biddy","Great Wraps","LeeAnn Chin"],        nearbyLand:["C Centerpoint \"The Connection\" food hall","SkyTrain escalators"],     skyClubKey:"C", skyClubDist:"~7 min walk to C37", plainEnglish:"C Centerpoint food hall (\"The Connection\"). Food Network star Duff Goldman's deli + market — sandwiches, baked goods and grab-and-go. Opened Dec 2025.", tags:["atl"],              hours:"7am–9pm", assumed:true },
+  { name:"Salad Works",          concourse:"C", gateArea:"E of Center", gateNum:30, nearbyRest:["Krispy Kreme","LeeAnn Chin","Umaizushi"],             nearbyLand:["C Center hub east"],                                                     skyClubKey:"C", skyClubDist:"~7 min walk to C37", plainEnglish:"East of C center, right beside Krispy Kreme. Build-your-own salads and grain bowls.", tags:["healthy","veg"],    hours:"11am–10pm" },
+  { name:"Savannah's Candy Kitchen",concourse:"C",gateArea:"W of Center",gateNum:25,nearbyRest:["Burger King","Bantam & Biddy","Fresh Healthy Cafe"],  nearbyLand:["C Center hub west"],                                                     skyClubKey:"C", skyClubDist:"~7 min walk to C37", plainEnglish:"West side of C center hub, between Burger King and Bantam & Biddy. Southern sweets and pralines.", tags:["snacks"],           hours:"7am–10pm" },
+  { name:"Truly Atlanta",        concourse:"C", gateArea:"W of Center", gateNum:25, nearbyRest:["Bantam & Biddy","Fresh Healthy Cafe"],                nearbyLand:["C Center hub west","SkyTrain escalators"],                               skyClubKey:"C", skyClubDist:"~7 min walk to C37", plainEnglish:"West of C center, near Bantam & Biddy. ATL-pride grab-and-go with local Georgia bites and gifts.", tags:["atl"],              hours:"10am–10pm" },
+  { name:"Umaizushi",            concourse:"C", gateArea:"NE of Center",gateNum:30, nearbyRest:["LeeAnn Chin","Great Wraps"],                          nearbyLand:["C Center hub north-east"],                                               skyClubKey:"C", skyClubDist:"~7 min walk to C37", plainEnglish:"NE of C center, right beside LeeAnn Chin. Japanese sushi and noodle dishes.", tags:[],                   hours:"8am–10pm" },
+
+  // ── CONCOURSE D ──
+  { name:"Chicken + Beer",       concourse:"D", gateArea:"Gate D5",     gateNum:5,  nearbyRest:["Asian Chao","Fab Yo!"],                               nearbyLand:["Gate D5","Gate D7 cluster"],                                             skyClubKey:"D", skyClubDist:"~8 min walk to D Centerpoint (D18)", plainEnglish:"Gate D5, heading toward the D center. Ludacris' ATL concept — hot chicken and waffles. Near Gate D7 cluster.", tags:["atl","black-owned"],hours:"7am–10pm" },
+  { name:"Asian Chao",           concourse:"D", gateArea:"Gate D7",     gateNum:7,  nearbyRest:["Chicken + Beer","Fab Yo!","Harvest & Grounds"],        nearbyLand:["Gate D7","Gate D8–D9 cluster"],                                          skyClubKey:"D", skyClubDist:"~7 min walk to D Centerpoint", plainEnglish:"Gate D7, beside Fab Yo! and a short walk from the D8 cluster. Pan-Asian stir-fry.", tags:[],                   hours:"8am–8pm" },
+  { name:"Fab Yo!",              concourse:"D", gateArea:"Gate D7",     gateNum:7,  nearbyRest:["Asian Chao","Harvest & Grounds","Chicken + Beer"],     nearbyLand:["Gate D7","Gate D8–D9 area"],                                             skyClubKey:"D", skyClubDist:"~7 min walk to D Centerpoint", plainEnglish:"Gate D7, right beside Asian Chao. Self-serve frozen yogurt with fresh toppings.", tags:["healthy","veg"],    hours:"8am–10pm" },
+  { name:"Atlanta Braves All Star Grill",concourse:"D",gateArea:"Gate D8",gateNum:8,nearbyRest:["Popeyes","Wolfgang Puck Express","Harvest & Grounds"], nearbyLand:["Gate D8","Gate D9","Popeyes (same gate)","Wolfgang Puck (same gate)"],  skyClubKey:"D", skyClubDist:"~6 min walk to D Centerpoint", plainEnglish:"Gate D8 — shares space with Popeyes and Wolfgang Puck Express. Baseball-themed sports bar.", tags:["atl","bar"],        hours:"7am–10pm" },
+  { name:"Popeyes",              concourse:"D", gateArea:"Gate D8",     gateNum:8,  nearbyRest:["Atlanta Braves All Star Grill","Wolfgang Puck Express"],nearbyLand:["Gate D8","Gate D9 Harvest & Grounds"],                                  skyClubKey:"D", skyClubDist:"~6 min walk to D Centerpoint", plainEnglish:"Gate D8, right beside the Braves Grill and Wolfgang Puck. Crispy chicken cluster at D8.", tags:["fast"],             hours:"6am–10pm" },
+  { name:"Wolfgang Puck Express",concourse:"D", gateArea:"Gate D8",     gateNum:8,  nearbyRest:["Atlanta Braves All Star Grill","Popeyes"],             nearbyLand:["Gate D8","Gate D9"],                                                     skyClubKey:"D", skyClubDist:"~6 min walk to D Centerpoint", plainEnglish:"Gate D8, part of the three-way cluster with Braves Grill and Popeyes. Upscale café and pizza.", tags:[],                   hours:"6am–10pm" },
+  { name:"Harvest & Grounds",    concourse:"D", gateArea:"Gate D9",     gateNum:9,  nearbyRest:["Wolfgang Puck Express","Asian Chao","Fab Yo!"],         nearbyLand:["Gate D9","Gate D8 cluster"],                                             skyClubKey:"D", skyClubDist:"~6 min walk to D Centerpoint", plainEnglish:"Gate D9, right after the D8 cluster heading toward center. Specialty coffee and avocado toast.", tags:["coffee","breakfast"],hours:"5am–10pm" },
+  { name:"Einstein Bros. Bagels",concourse:"D", gateArea:"NW of Center",gateNum:15, nearbyRest:["40/40 Bar","KoHo Kolache House","Lemonade"],           nearbyLand:["D Center hub (Centerpoint)","Sky Club D (D18)","SkyTrain escalators"],  skyClubKey:"D", skyClubDist:"~3 min walk — right at D Centerpoint near Sky Club", plainEnglish:"NW of D Centerpoint, steps from the Sky Club entrance. All-day egg sandwiches and bagels.", tags:["breakfast"],        hours:"5:30am–11pm" },
+  { name:"40/40 Bar",            concourse:"D", gateArea:"D Centerpoint",gateNum:18,nearbyRest:["KoHo Kolache House","Lemonade","Einstein Bros."],      nearbyLand:["Delta Sky Club D ★ (same level, near D18)","D Centerpoint hub"],        skyClubKey:"D", skyClubDist:"Steps from Sky Club D ★ (newest ATL club)", plainEnglish:"D Centerpoint, right next to the newest Delta Sky Club. Jay-Z's sports lounge with signature cocktails.", tags:["bar"],              hours:"9am–10pm" },
+  { name:"KoHo Kolache House",   concourse:"D", gateArea:"D Centerpoint",gateNum:18,nearbyRest:["40/40 Bar","Lemonade","Einstein Bros."],              nearbyLand:["D Centerpoint hub","Sky Club D ★ (D18)","SkyTrain escalators"],         skyClubKey:"D", skyClubDist:"Steps from Sky Club D ★", plainEnglish:"D Centerpoint, right in the heart of the hub next to 40/40 Bar. Sweet and savory Texas-style kolaches baked fresh.", tags:["atl","breakfast"],  hours:"6am–10pm" },
+  { name:"Lemonade",             concourse:"D", gateArea:"D Centerpoint",gateNum:18,nearbyRest:["40/40 Bar","KoHo Kolache House"],                     nearbyLand:["D Centerpoint hub","Sky Club D ★"],                                      skyClubKey:"D", skyClubDist:"Steps from Sky Club D ★", plainEnglish:"D Centerpoint hub, beside KoHo and 40/40 Bar. California-style seasonal bowls and marketplace plates.", tags:["healthy"],          hours:"6am–10pm" },
+  { name:"Mustard Seed BBQ",     concourse:"D", gateArea:"Gate D23",    gateNum:23, nearbyRest:["Auntie Anne's","Buffalo Wild Wings"],                  nearbyLand:["Gate D23","Auntie Anne's (same gate)"],              skyClubKey:"D", skyClubDist:"~4 min walk back toward D Centerpoint", plainEnglish:"Gate D23, right beside Auntie Anne's — pit-smoked Southern BBQ brisket and pulled pork.", tags:["atl"],              hours:"6am–11pm" },
+  { name:"Auntie Anne's",        concourse:"D", gateArea:"Gate D23",    gateNum:23, nearbyRest:["Mustard Seed BBQ","Buffalo Wild Wings"],               nearbyLand:["Gate D23","Mustard Seed BBQ (same gate)"],                               skyClubKey:"D", skyClubDist:"~4 min walk back toward D Centerpoint", plainEnglish:"Gate D23, sharing space with Mustard Seed BBQ. Pretzels on the east side of D.", tags:["snacks"],           hours:"M–F 7:30am–8:30pm" },
+  { name:"Buffalo Wild Wings",   concourse:"D", gateArea:"Gate D30",    gateNum:30, nearbyRest:["Coffee Bean & Tea Leaf","Grindhouse Killer Burgers"],  nearbyLand:["Gate D30","Coffee Bean (same gate)","Gate D31"],                         skyClubKey:"D", skyClubDist:"~10 min walk back toward D Centerpoint", plainEnglish:"Gate D30, right beside Coffee Bean & Tea Leaf. Wings in 20+ flavors, sports on every screen.", tags:["bar"],              hours:"6am–11pm" },
+  { name:"Coffee Bean & Tea Leaf",concourse:"D",gateArea:"Gate D30",    gateNum:30, nearbyRest:["Buffalo Wild Wings","Grindhouse Killer Burgers"],      nearbyLand:["Gate D30","Buffalo Wild Wings (same gate)","Gate D31"],                 skyClubKey:"D", skyClubDist:"~10 min walk back toward D Centerpoint", plainEnglish:"Gate D30, right beside Buffalo Wild Wings. Specialty coffee at the far end of D.", tags:["coffee"],           hours:"6am–10pm" },
+  { name:"Grindhouse Killer Burgers",concourse:"D",gateArea:"Gate D31",gateNum:31,nearbyRest:["Buffalo Wild Wings","Coffee Bean & Tea Leaf"],           nearbyLand:["Gate D31","Gate D30 cluster"],                                           skyClubKey:"D", skyClubDist:"~11 min walk back toward D Centerpoint", plainEnglish:"Gate D31, right after Buffalo Wild Wings cluster. ATL cult-fave smash burgers.", tags:["atl"],              hours:"6am–10pm" },
+  { name:"Wolfgang Puck Grab & Go",concourse:"D",gateArea:"Gate D34",  gateNum:34, nearbyRest:["Grindhouse Killer Burgers"],                           nearbyLand:["Gate D34","Gate D33–D36","Far end of Concourse D"],                     skyClubKey:"D", skyClubDist:"~13 min walk back toward D Centerpoint", plainEnglish:"Gate D34 — near the far end of D. Quick grab Wolfgang Puck sandwiches and salads.", tags:["fast"],             hours:"7am–10pm" },
+  { name:"Bang House Pizza",     concourse:"D", gateArea:"W of Center", gateNum:17, nearbyRest:["Freshen's","Garbanzo"],                                nearbyLand:["D Center west hub","SkyTrain escalators"],                               skyClubKey:"D", skyClubDist:"~2 min walk to D Centerpoint", plainEnglish:"West of D center, near Freshen's and Garbanzo. Open 24 hours — one of ATL's only truly late-night spots.", tags:["24hr"],             hours:"24 hours" },
+  { name:"Freshen's",            concourse:"D", gateArea:"W of Center", gateNum:17, nearbyRest:["Bang House Pizza","Garbanzo"],                         nearbyLand:["D Center west hub","SkyTrain escalators"],                               skyClubKey:"D", skyClubDist:"~2 min walk to D Centerpoint", plainEnglish:"West of D center, beside Bang House Pizza. Smoothies and light bites near the center hub.", tags:["healthy"],          hours:"6am–11pm" },
+  { name:"Garbanzo",             concourse:"D", gateArea:"W of Center", gateNum:17, nearbyRest:["Bang House Pizza","Freshen's"],                        nearbyLand:["D Center west hub"],                                                     skyClubKey:"D", skyClubDist:"~2 min walk to D Centerpoint", plainEnglish:"West of D center with Bang House and Freshen's. Falafel, shawarma wraps and hummus bowls.", tags:["veg","healthy"],    hours:"8am–11pm" },
+  { name:"Phillip's Seafood",    concourse:"D", gateArea:"E of Center", gateNum:19, nearbyRest:["The Market by Food & Wine"],                           nearbyLand:["D Center hub east","Gate D19–D21 area"],                                 skyClubKey:"D", skyClubDist:"~2 min walk to D Centerpoint", plainEnglish:"East of D center, across from The Market. Maryland-style crab cakes and coastal seafood.", tags:[],                   hours:"6:30am–10pm" },
+  { name:"The Market by Food & Wine",concourse:"D",gateArea:"NE of Center",gateNum:19,nearbyRest:["Phillip's Seafood","Terrapin Taphouse"],             nearbyLand:["D Center hub north-east","Mezzanine below (Terrapin)"],                  skyClubKey:"D", skyClubDist:"~2 min walk to D Centerpoint", plainEnglish:"NE of D center — Food & Wine curated gourmet market with artisan snacks and drinks.", tags:[],                   hours:"5am–10pm" },
+  { name:"Terrapin Taphouse",    concourse:"D", gateArea:"Mezzanine",   gateNum:18, nearbyRest:["40/40 Bar","The Market by Food & Wine"],               nearbyLand:["D Centerpoint Mezzanine","Below Sky Club D ★"],                          skyClubKey:"D", skyClubDist:"Directly below Sky Club D ★", plainEnglish:"D Centerpoint Mezzanine level — Athens GA craft brewery taproom right below the Sky Club.", tags:["bar","atl"],        hours:"7am–10pm" },
+
+  // ── CONCOURSE E ──
+  { name:"Sojourner's Cafe",     concourse:"E", gateArea:"Gate E8",     gateNum:8,  nearbyRest:["Arby's","McDonald's"],                               nearbyLand:["Gate E8","Gate E9–E12 area"],                                            skyClubKey:"E", skyClubDist:"~5 min walk to E15 (across from gate)", plainEnglish:"Gate E8 — ATL comfort food café before the main center. Good fried chicken and waffles.", tags:[],                   hours:"7am–10pm" },
+  { name:"Arby's",               concourse:"E", gateArea:"E Centerpoint",gateNum:13,nearbyRest:["McDonald's","Qdoba","Villa Pizza"],                   nearbyLand:["E Centerpoint hub","SkyTrain escalators","Delta Sky Club E (near E15)"], skyClubKey:"E", skyClubDist:"~2 min walk to E15 Sky Club", plainEnglish:"E Centerpoint, right in the main hub with McDonald's and Qdoba. Roast beef sandwiches and curly fries.", tags:["fast"],             hours:"6am–10pm" },
+  { name:"McDonald's",           concourse:"E", gateArea:"E Centerpoint",gateNum:13,nearbyRest:["Arby's","Qdoba","Villa Pizza"],                        nearbyLand:["E Centerpoint hub","SkyTrain escalators","Delta Sky Club E (near E15)"], skyClubKey:"E", skyClubDist:"~2 min walk to E15 Sky Club", plainEnglish:"E Centerpoint hub, surrounded by Arby's, Qdoba, and Villa Pizza. Open 24 hours.", tags:["fast","24hr"],      hours:"24 hours" },
+  { name:"Qdoba Mexican Eats",   concourse:"E", gateArea:"E Centerpoint",gateNum:13,nearbyRest:["Arby's","McDonald's","Villa Pizza"],                   nearbyLand:["E Centerpoint hub","Delta Sky Club E (near E15)"],                       skyClubKey:"E", skyClubDist:"~2 min walk to E15 Sky Club", plainEnglish:"E Centerpoint, right in the main hub cluster. Burritos with free queso.", tags:[],                   hours:"6am–10pm" },
+  { name:"Villa Pizza",          concourse:"E", gateArea:"E Centerpoint",gateNum:13,nearbyRest:["Arby's","McDonald's","Qdoba"],                         nearbyLand:["E Centerpoint hub","SkyTrain escalators"],                               skyClubKey:"E", skyClubDist:"~2 min walk to E15 Sky Club", plainEnglish:"E Centerpoint hub, part of the main fast-food cluster. NY-style pizza by the slice.", tags:[],                   hours:"6am–10pm" },
+  { name:"Caribou Coffee",       concourse:"E", gateArea:"Food Court",  gateNum:14, nearbyRest:["Nathan's Famous","Nature's Table","Panda Express"],    nearbyLand:["E Food Court","Gate E14–E16 area","Near Sky Club E (E15)"],              skyClubKey:"E", skyClubDist:"~1 min — Food Court is at the Sky Club level", plainEnglish:"E Food Court cluster near Gate E15 — the same area as the Sky Club. Craft coffee and breakfast bites.", tags:["coffee"],           hours:"5am–10pm" },
+  { name:"Nathan's Famous",      concourse:"E", gateArea:"Food Court",  gateNum:14, nearbyRest:["Caribou Coffee","Nature's Table","Panda Express"],      nearbyLand:["E Food Court","Delta Sky Club E (across from E15)"],                     skyClubKey:"E", skyClubDist:"~1 min — Food Court is right at the Sky Club", plainEnglish:"E Food Court, right at the Sky Club entrance area. NYC's iconic Coney Island hot dogs.", tags:[],                   hours:"9am–10pm" },
+  { name:"Nature's Table",       concourse:"E", gateArea:"Food Court",  gateNum:14, nearbyRest:["Caribou Coffee","Nathan's Famous","Panda Express"],     nearbyLand:["E Food Court","Delta Sky Club E entrance"],                              skyClubKey:"E", skyClubDist:"~1 min — Food Court is right at the Sky Club", plainEnglish:"E Food Court at the Sky Club level — health-focused wraps and salads.", tags:["healthy","veg"],    hours:"6am–10pm" },
+  { name:"Panda Express",        concourse:"E", gateArea:"Food Court",  gateNum:14, nearbyRest:["Caribou Coffee","Nathan's Famous","Nature's Table"],    nearbyLand:["E Food Court","Delta Sky Club E entrance"],                              skyClubKey:"E", skyClubDist:"~1 min — Food Court is right at the Sky Club", plainEnglish:"E Food Court cluster at the Sky Club level. Orange chicken bowls and stir-fry.", tags:["fast"],             hours:"6am–10pm" },
+  { name:"Freshen's",            concourse:"E", gateArea:"E Center",    gateNum:15, nearbyRest:["Subway","The Piano Bar"],                             nearbyLand:["E Center","Delta Sky Club E (across from E15)"],                         skyClubKey:"E", skyClubDist:"Right at Sky Club E (across from E15)", plainEnglish:"E center, right across from the Sky Club entrance at E15. Smoothies and light bites.", tags:["healthy"],          hours:"6am–10pm" },
+  { name:"Subway",               concourse:"E", gateArea:"E Center",    gateNum:15, nearbyRest:["Freshen's","The Piano Bar","Arby's"],                  nearbyLand:["E Center hub","Delta Sky Club E (across from E15)"],                     skyClubKey:"E", skyClubDist:"Right at Sky Club E (across from E15)", plainEnglish:"E center, steps from the Sky Club at E15. Customizable footlongs.", tags:["fast"],             hours:"7am–9pm" },
+  { name:"The Piano Bar",        concourse:"E", gateArea:"E Center",    gateNum:15, nearbyRest:["Freshen's","Subway"],                                 nearbyLand:["E Center hub","Delta Sky Club E (across from E15)"],                     skyClubKey:"E", skyClubDist:"Right at Sky Club E (across from E15)", plainEnglish:"E center right across from the Sky Club entrance. Live music, cocktails, and bar bites.", tags:["bar"],              hours:"7am–10pm" },
+  { name:"TGI Fridays",          concourse:"E", gateArea:"E of Center", gateNum:20, nearbyRest:["Boar's Head Kiosk","One Flew South"],                 nearbyLand:["Gate E20 area","Gate E26 far end"],                                     skyClubKey:"E", skyClubDist:"~4 min walk back toward E15", plainEnglish:"East of E center, heading toward the far gates. Bar & grill with cocktails and comfort food.", tags:["bar"],              hours:"6am–11pm" },
+  { name:"One Flew South",       concourse:"E", gateArea:"N of Center", gateNum:15, nearbyRest:["Freshen's","The Piano Bar"],                          nearbyLand:["Gate E15 area","Delta Sky Club E entrance","E Center hub"],              skyClubKey:"E", skyClubDist:"Steps from Sky Club E (across from E15)", plainEnglish:"North of E center, steps from the Sky Club. ATL's most acclaimed airport restaurant — Southern-Asian fusion sushi.", tags:["atl","upscale"],    hours:"M–F 7am–10pm" },
+  { name:"Boar's Head Kiosk",    concourse:"E", gateArea:"Gate E26",    gateNum:26, nearbyRest:["TGI Fridays"],                                        nearbyLand:["Gate E26","Far end of Concourse E"],                                    skyClubKey:"E", skyClubDist:"~9 min walk back toward E15", plainEnglish:"Gate E26 — far end of Concourse E. Grab-and-go Boar's Head sandwiches near the last gates.", tags:[],                   hours:"8am–10pm" },
+
+  // ── CONCOURSE F ──
+  { name:"Maison Mathis",        concourse:"F", gateArea:"Gate F3",     gateNum:3,  nearbyRest:["Atlanta Bread Company"],                              nearbyLand:["Gate F3","Gate F4–F6 area","International arrivals level below"],       skyClubKey:"F", skyClubDist:"~5 min walk to F Mezzanine Sky Club", plainEnglish:"Near Gate F3 — Belgian bakery famous for Liège waffles. One of the first spots entering Concourse F.", tags:[],                   hours:"6am–10pm" },
+  { name:"Atlanta Bread Company",concourse:"F", gateArea:"F Center",    gateNum:6,  nearbyRest:["Maison Mathis","ATL Shops by Hudson"],                nearbyLand:["F Center hub","SE area near ATL Shops"],                                 skyClubKey:"F", skyClubDist:"~3 min walk to F Mezzanine Sky Club", plainEnglish:"F center ground level — sandwiches and soups below the mezzanine dining floor.", tags:["breakfast"],        hours:"6am–10pm" },
+  { name:"ATL Shops by Hudson",  concourse:"F", gateArea:"SE of Center",gateNum:6,  nearbyRest:["Atlanta Bread Company"],                              nearbyLand:["F Center hub south-east","Gate F6–F8 area","International departure level"],skyClubKey:"F", skyClubDist:"~3 min walk to F Mezzanine", plainEnglish:"SE of F center, below the mezzanine. Travel essentials, snacks and grab-and-go.", tags:[],                   hours:"4:30am–11pm" },
+  { name:"Jekyll Island Seafood Co.",concourse:"F",gateArea:"Gate F9",  gateNum:9,  nearbyRest:["Maison Mathis"],                                      nearbyLand:["Gate F9","Far end of Concourse F","International gates"],               skyClubKey:"F", skyClubDist:"~7 min walk to F Mezzanine Sky Club", plainEnglish:"Gate F9 — farthest point of Concourse F. Georgia coastal seafood: shrimp, oysters, crab dishes.", tags:["atl"],              hours:"6am–10pm" },
+  { name:"Burger King",          concourse:"F", gateArea:"Level 2",     gateNum:6,  nearbyRest:["Ecco","El Taco","Starbucks"],                         nearbyLand:["Mezzanine / Level 2 food cluster","Near Sky Club F"],                    skyClubKey:"F", skyClubDist:"Steps from Sky Club F on the Mezzanine", plainEnglish:"Mezzanine (Level 2), right in the upstairs dining cluster beside Ecco and Starbucks. Open 24 hours.", tags:["fast","24hr"],      hours:"24 hours" },
+  { name:"Ecco",                 concourse:"F", gateArea:"Mezzanine",   gateNum:6,  nearbyRest:["El Taco","Lorena Garcia","Pei Wei","The Pecan Bar","Starbucks"],nearbyLand:["Delta Sky Club F (same level)","F Mezzanine dining cluster","Sky Deck (from Sky Club)"],skyClubKey:"F", skyClubDist:"Steps from Sky Club F on Mezzanine", plainEnglish:"F Mezzanine — upscale European bistro right in the Sky Club-level dining cluster. Housemade pasta and charcuterie.", tags:["atl","upscale"],    hours:"11am–10:30pm" },
+  { name:"El Taco",              concourse:"F", gateArea:"Mezzanine",   gateNum:6,  nearbyRest:["Ecco","Lorena Garcia","Pei Wei","Starbucks","The Pecan Bar"],nearbyLand:["F Mezzanine dining cluster","Delta Sky Club F (same level)"],       skyClubKey:"F", skyClubDist:"Steps from Sky Club F on Mezzanine", plainEnglish:"F Mezzanine, right in the dining cluster — ATL-born taqueria with fresh street tacos.", tags:[],                   hours:"6am–10pm" },
+  { name:"Lorena Garcia",        concourse:"F", gateArea:"Mezzanine",   gateNum:6,  nearbyRest:["Ecco","El Taco","Pei Wei","Starbucks"],                nearbyLand:["F Mezzanine dining cluster","Delta Sky Club F"],                          skyClubKey:"F", skyClubDist:"Steps from Sky Club F on Mezzanine", plainEnglish:"F Mezzanine, part of the upstairs dining cluster. Celebrity chef Latin-American cuisine.", tags:[],                   hours:"9am–10pm" },
+  { name:"Pei Wei",              concourse:"F", gateArea:"Mezzanine",   gateNum:6,  nearbyRest:["Ecco","El Taco","Lorena Garcia","Starbucks","The Pecan Bar"],nearbyLand:["F Mezzanine dining cluster","Delta Sky Club F"],                    skyClubKey:"F", skyClubDist:"Steps from Sky Club F on Mezzanine", plainEnglish:"F Mezzanine cluster, right beside The Pecan Bar and Starbucks. Pan-Asian wok-tossed noodle bowls.", tags:[],                   hours:"8am–11pm" },
+  { name:"Starbucks",            concourse:"F", gateArea:"Mezzanine",   gateNum:6,  nearbyRest:["Ecco","El Taco","Pei Wei","Lorena Garcia","The Pecan Bar"],nearbyLand:["F Mezzanine dining cluster","Delta Sky Club F (same level)"],        skyClubKey:"F", skyClubDist:"Steps from Sky Club F on Mezzanine", plainEnglish:"F Mezzanine, in the heart of the dining cluster beside The Pecan Bar. Easy coffee before accessing the Sky Club.", tags:["coffee"],           hours:"5am–10pm" },
+  { name:"The Pecan Bar",        concourse:"F", gateArea:"Mezzanine",   gateNum:6,  nearbyRest:["Ecco","Pei Wei","Starbucks","El Taco"],                nearbyLand:["F Mezzanine dining cluster","Delta Sky Club F","Sky Deck access"],       skyClubKey:"F", skyClubDist:"Steps from Sky Club F on Mezzanine", plainEnglish:"F Mezzanine, right beside Starbucks and Pei Wei, and steps from the Sky Club with Sky Deck. Pecan Old Fashioned.", tags:["bar","atl"],        hours:"6am–10pm" },
+];
+
+// ─────────────────────────────────────────────
+//  SHOPS, RETAIL & SERVICES (by concourse)
+// ─────────────────────────────────────────────
+const DIR_SHOPS = [
+  // Domestic Terminal
+  {name:'Hudson News',concourse:'domestic',gateArea:'Main Atrium',category:'newsstand',hours:'5am–11pm',desc:'Flagship newsstand — best-sellers, magazines, snacks, chargers & travel gear.',nearbyLand:'Atrium, Security, MARTA'},
+  {name:'Tech On The Go',concourse:'domestic',gateArea:'Main Atrium',category:'electronics',hours:'6am–10pm',desc:'Chargers, earbuds, adapters & power banks (kiosk + vending).',nearbyLand:'Atrium escalators'},
+  {name:'Bank of America ATM',concourse:'domestic',gateArea:'Atrium · Baggage Claim',category:'atm',hours:'24 hours',desc:'Surcharge-free for BofA customers. Multiple ATMs.',nearbyLand:'Baggage Claim, Ticketing'},
+  {name:'The Atlanta Hawks Store',concourse:'domestic',gateArea:'Atrium Plaza',category:'souvenirs',hours:'7am–9pm',desc:'Official Hawks & Atlanta sports merch — jerseys, caps, gifts.',nearbyLand:'Atrium Plaza, Delta check-in'},
+  // Concourse T
+  {name:'News Express',concourse:'T',gateArea:'Gate T7',category:'newsstand',hours:'5:30am–10pm',desc:'Books, magazines, travel accessories, snacks & drinks.',nearbyLand:'Gate T7, Bojangles'},
+  {name:'B Iconic',concourse:'T',gateArea:'Gate T12',category:'retail',hours:'6am–9pm',desc:'Trendy fashion accessories, sunglasses & jewelry.',nearbyLand:"Gate T12, Goldberg's"},
+  {name:'Z-Market',concourse:'T',gateArea:'Gate T10',category:'convenience',hours:'5:30am–10pm',desc:'Grab-and-go market — salads, sandwiches, snacks, drinks.',nearbyLand:'Gate T10, Admirals Club'},
+  {name:'InMotion',concourse:'T',gateArea:'Gate T8',category:'electronics',hours:'6am–9pm',desc:'Headphones, chargers, Bluetooth speakers & accessories.',nearbyLand:'Gate T8, T center'},
+  {name:'Bank of America ATM',concourse:'T',gateArea:'T Center',category:'atm',hours:'24 hours',desc:'ATM near the T center hub & SkyTrain.',nearbyLand:'T center, SkyTrain'},
+  // Concourse A
+  {name:'Salvatore Ferragamo',concourse:'A',gateArea:'A Center',category:'retail',hours:'7am–9pm',desc:'Luxury Italian apparel, shoes & accessories.',nearbyLand:'A center hub, SkyTrain'},
+  {name:'Best Buy Express',concourse:'A',gateArea:'Gate A19',category:'electronics',hours:'6am–10pm',desc:'Kiosk — chargers, headphones, cameras & phone accessories.',nearbyLand:'Gate A19, Sky Club A'},
+  {name:'Z-Market',concourse:'A',gateArea:'Gate A26',category:'convenience',hours:'5:30am–10pm',desc:'Convenience market — fresh grab-and-go meals & basics.',nearbyLand:'Gate A26, Shake Shack'},
+  {name:'InMotion',concourse:'A',gateArea:'Gate A12',category:'electronics',hours:'6am–9pm',desc:'Travel tech — headphones, tablets, chargers.',nearbyLand:"Gate A12, McDonald's"},
+  {name:'Midtown Magazine',concourse:'A',gateArea:'Gate A15',category:'newsstand',hours:'5:30am–10pm',desc:'Newspapers, magazines, paperbacks & sundries.',nearbyLand:'Gate A15, A center'},
+  {name:'The Atlanta Store',concourse:'A',gateArea:'A Center',category:'souvenirs',hours:'7am–9pm',desc:'Atlanta & Georgia souvenirs — tees, caps, peach treats.',nearbyLand:'A center hub'},
+  {name:'XpresSpa',concourse:'A',gateArea:'A Center',category:'services',hours:'7am–8pm',desc:'Massages, manicures, pedicures & travel-relief.',nearbyLand:'A center hub'},
+  {name:'Bank of America ATM',concourse:'A',gateArea:'A Center',category:'atm',hours:'24 hours',desc:'ATM at the A center hub.',nearbyLand:'A center, SkyTrain'},
+  // Concourse B
+  {name:'Brookstone',concourse:'B',gateArea:'B Center',category:'electronics',hours:'7am–9pm',desc:'Gadgets, travel pillows, massagers & tech. Massage chairs!',nearbyLand:'B center hub'},
+  {name:'Buckhead Books',concourse:'B',gateArea:'B Center',category:'newsstand',hours:'6am–9pm',desc:'Bookstore & newsstand — best-sellers, magazines, gifts.',nearbyLand:'B center hub'},
+  {name:'Luxe International',concourse:'B',gateArea:'Gate B15',category:'retail',hours:'7am–9pm',desc:'Brand-name fashion, handbags & travel luxuries.',nearbyLand:'Gate B15, Starbucks'},
+  {name:'Sean John',concourse:'B',gateArea:'Gate B26',category:'retail',hours:'7am–9pm',desc:"Men's contemporary clothing & accessories.",nearbyLand:"Gate B26, Bobby's Burger Palace"},
+  {name:'Spanx',concourse:'B',gateArea:'Gate B18',category:'retail',hours:'7am–9pm',desc:'Atlanta-born shapewear, leggings & comfort apparel.',nearbyLand:'Gate B18, Sky Club B'},
+  {name:'Z-Market',concourse:'B',gateArea:'Gate B26',category:'convenience',hours:'5:30am–10pm',desc:'Grab-and-go market with salads, sandwiches & drinks.',nearbyLand:'Gate B26'},
+  {name:'Panda Veranda',concourse:'B',gateArea:'Gate B7',category:'souvenirs',hours:'7am–9pm',desc:'Zoo Atlanta plush, stuffed animals & kid gifts.',nearbyLand:'Gate B7, Atlanta Bread'},
+  {name:'Midtown Magazine',concourse:'B',gateArea:'Gate B11',category:'newsstand',hours:'5:30am–10pm',desc:'Magazines, paperbacks, snacks & essentials.',nearbyLand:'Gate B11, Blue Moon Brewhouse'},
+  {name:'Minute Suites',concourse:'B',gateArea:'B Center',category:'services',hours:'24 hours',desc:'Private rest suites — nap, work or shower. Book by the hour.',nearbyLand:'B center, Sky Club B'},
+  {name:'Bank of America ATM',concourse:'B',gateArea:'B Center',category:'atm',hours:'24 hours',desc:'ATM at the B center hub.',nearbyLand:'B center, SkyTrain'},
+  // Concourse C
+  {name:'Buckhead Books',concourse:'C',gateArea:'Gate C39',category:'newsstand',hours:'6am–9pm',desc:'Bookstore & newsstand — best-sellers, magazines, gifts.',nearbyLand:'Gate C39, C east end'},
+  {name:'Midtown Magazine',concourse:'C',gateArea:'Gate C45',category:'newsstand',hours:'5:30am–10pm',desc:'Magazines, paperbacks, snacks & sundries.',nearbyLand:'Gate C45, C far east'},
+  {name:'Brookstone',concourse:'C',gateArea:'C Center',category:'electronics',hours:'7am–9pm',desc:'Gadgets, travel comfort, massagers & tech. Massage chairs!',nearbyLand:'C center hub'},
+  {name:'TUMI',concourse:'C',gateArea:'Gate C36',category:'retail',hours:'7am–9pm',desc:'Premium luggage, business bags & travel accessories.',nearbyLand:'Gate C36'},
+  {name:'The Atlanta Store',concourse:'C',gateArea:'Gate C30',category:'souvenirs',hours:'7am–9pm',desc:'Atlanta & Georgia souvenirs, tees, caps & magnets.',nearbyLand:'Gate C30, C center'},
+  {name:'Z-Market',concourse:'C',gateArea:'Gate C22',category:'convenience',hours:'5:30am–10pm',desc:'Grab-and-go meals, snacks, drinks & basics.',nearbyLand:"Gate C22, Carrabba's"},
+  {name:'XpresSpa',concourse:'C',gateArea:'Gate C26',category:'services',hours:'7am–8pm',desc:'Massages, manis, pedis & travel-relief treatments.',nearbyLand:'Gate C26, C center'},
+  {name:'Bank of America ATM',concourse:'C',gateArea:'C Center',category:'atm',hours:'24 hours',desc:'ATM at the C center hub.',nearbyLand:'C center, SkyTrain'},
+  // Concourse D
+  {name:'Johnston & Murphy',concourse:'D',gateArea:'D Centerpoint',category:'retail',hours:'7am–9pm',desc:'High-quality shoes plus travel-ready apparel.',nearbyLand:'D Centerpoint hub'},
+  {name:'Pandora',concourse:'D',gateArea:'D Centerpoint',category:'retail',hours:'7am–9pm',desc:'Charm bracelets, jewelry & gift-ready accessories.',nearbyLand:'D Centerpoint hub'},
+  {name:'All ATL',concourse:'D',gateArea:'D Centerpoint',category:'souvenirs',hours:'7am–9pm',desc:'Atlanta-branded shirts, caps, Zoo Atlanta plush & souvenirs.',nearbyLand:'D Centerpoint hub'},
+  {name:'Bluwire',concourse:'D',gateArea:'D Centerpoint',category:'electronics',hours:'6am–10pm',desc:'Latest portable electronics, headphones & smart gadgets.',nearbyLand:'D Centerpoint hub'},
+  {name:'Brookstone',concourse:'D',gateArea:'D Center',category:'electronics',hours:'7am–9pm',desc:'Gadgets, travel comfort & massagers. Massage chairs!',nearbyLand:'D center hub'},
+  {name:'Best Buy Express',concourse:'D',gateArea:'Gate D11A',category:'electronics',hours:'6am–10pm',desc:'Kiosk — chargers, headphones, cameras & accessories.',nearbyLand:'Gate D11A'},
+  {name:'Luxe International',concourse:'D',gateArea:'Gate D11',category:'retail',hours:'7am–9pm',desc:'Brand-name fashion, handbags & travel accessories.',nearbyLand:'Gate D11'},
+  {name:'Midtown Magazine',concourse:'D',gateArea:'Gate D6',category:'newsstand',hours:'5:30am–10pm',desc:'Magazines, books, snacks & travel sundries.',nearbyLand:'Gate D6, D west'},
+  {name:'InMotion',concourse:'D',gateArea:'Gate D8',category:'electronics',hours:'6am–9pm',desc:'Premium travel tech — headphones, tablets, chargers.',nearbyLand:'Gate D8, Popeyes'},
+  {name:'Z-Market',concourse:'D',gateArea:'Gate D5',category:'convenience',hours:'5:30am–10pm',desc:'Grab-and-go meals, snacks & drinks.',nearbyLand:'Gate D5, Chicken + Beer'},
+  {name:'Bank of America ATM',concourse:'D',gateArea:'D Center',category:'atm',hours:'24 hours',desc:'ATM at the D center hub.',nearbyLand:'D center, SkyTrain'},
+  // Concourse E (International)
+  {name:'Brooks Brothers',concourse:'E',gateArea:'Gate E12',category:'retail',hours:'7am–9pm',desc:'High-end menswear & womenswear — suits, shirts, ties.',nearbyLand:'Gate E12, E center'},
+  {name:'Michael Kors',concourse:'E',gateArea:'Gate E12',category:'retail',hours:'7am–9pm',desc:'Designer handbags, watches & accessories.',nearbyLand:'Gate E12'},
+  {name:'Swarovski',concourse:'E',gateArea:'Gate E11',category:'retail',hours:'7am–9pm',desc:'Crystal jewelry, watches & gift-ready sparkle.',nearbyLand:'Gate E11, Centurion Lounge'},
+  {name:'Spanx',concourse:'E',gateArea:'Gate E18',category:'retail',hours:'7am–9pm',desc:'Atlanta-born shapewear, leggings & comfort apparel.',nearbyLand:'Gate E18'},
+  {name:'Duty-Free Americas',concourse:'E',gateArea:'E Center',category:'retail',hours:'7am–10pm',desc:'Tax-free liquor, perfume, cosmetics, tobacco & luxury gifts.',nearbyLand:'E center hub'},
+  {name:'MAC Cosmetics',concourse:'E',gateArea:'E Center',category:'health',hours:'7am–9pm',desc:'Makeup, skincare & beauty essentials with testers.',nearbyLand:'E center hub'},
+  {name:"Kiehl's",concourse:'E',gateArea:'Gate E19',category:'health',hours:'7am–9pm',desc:'Skincare, moisturizers & travel-size grooming.',nearbyLand:'Gate E19'},
+  {name:'CVS Pharmacy Kiosk',concourse:'E',gateArea:'Gate E26',category:'health',hours:'6am–10pm',desc:'Travel health, OTC meds, first-aid & toiletries.',nearbyLand:'Gate E26, E east'},
+  {name:'Best Buy Express',concourse:'E',gateArea:'Gate E15',category:'electronics',hours:'6am–10pm',desc:'Kiosk — chargers, headphones, adapters & accessories.',nearbyLand:'Gate E15'},
+  {name:'InMotion',concourse:'E',gateArea:'Gate E6',category:'electronics',hours:'6am–9pm',desc:'Premium headphones, tablets & travel accessories.',nearbyLand:'Gate E6, E west'},
+  {name:'ICE Currency Exchange',concourse:'E',gateArea:'E Center',category:'currency',hours:'7am–9pm',desc:'Foreign currency exchange & traveler cash services.',nearbyLand:'E center hub'},
+  {name:'Bank of America ATM',concourse:'E',gateArea:'E Center',category:'atm',hours:'24 hours',desc:'ATM at the E center hub near Centurion Lounge.',nearbyLand:'E center, SkyTrain'},
+  // Concourse F (International)
+  {name:'Coach',concourse:'F',gateArea:'F Centerpoint',category:'retail',hours:'7am–10pm',desc:'Coach handbags, wallets, leather goods & accessories.',nearbyLand:'F Centerpoint'},
+  {name:'Montblanc',concourse:'F',gateArea:'F Centerpoint',category:'retail',hours:'7am–10pm',desc:'Luxury pens, leather goods, watches & refined gifts.',nearbyLand:'F Centerpoint'},
+  {name:'TUMI',concourse:'F',gateArea:'F Centerpoint',category:'retail',hours:'7am–10pm',desc:'Premium luggage, business bags & travel accessories.',nearbyLand:'F Centerpoint'},
+  {name:'Duty-Free Americas',concourse:'F',gateArea:'F Center',category:'retail',hours:'7am–10pm',desc:'Tax-free liquor, perfume, cosmetics, tobacco & gifts.',nearbyLand:'F center hub'},
+  {name:'MAC Cosmetics',concourse:'F',gateArea:'Gate F8',category:'health',hours:'7am–9pm',desc:'Makeup, skincare & beauty must-haves with testers.',nearbyLand:'Gate F8'},
+  {name:"L'Occitane",concourse:'F',gateArea:'Gate F7',category:'health',hours:'7am–9pm',desc:'French skincare, hand creams, fragrances & beauty.',nearbyLand:'Gate F7'},
+  {name:'InMotion Entertainment',concourse:'F',gateArea:'Gate F6',category:'electronics',hours:'6am–10pm',desc:'Premium electronics — headphones, tablets & travel tech.',nearbyLand:'Gate F6'},
+  {name:'Brookstone',concourse:'F',gateArea:'Gate F6',category:'electronics',hours:'7am–9pm',desc:'Gadgets, travel comfort & massagers. Massage chairs!',nearbyLand:'Gate F6'},
+  {name:'ATL Shops by Hudson',concourse:'F',gateArea:'Gate F6',category:'convenience',hours:'5:30am–10pm',desc:'Hudson convenience — snacks, drinks & last-minute essentials.',nearbyLand:'Gate F6, F center'},
+  {name:'ICE Currency Exchange',concourse:'F',gateArea:'F Center',category:'currency',hours:'7am–10pm',desc:'Foreign currency exchange & cash services.',nearbyLand:'F center hub'},
+  {name:'Bank of America ATM',concourse:'F',gateArea:'F Center',category:'atm',hours:'24 hours',desc:'ATM at the F center hub near customs.',nearbyLand:'F center, Customs'},
+];
+const SHOP_CAT = {
+  retail:{label:'Retail',glyph:'👜'}, souvenirs:{label:'Souvenirs',glyph:'🎁'},
+  convenience:{label:'Convenience',glyph:'🛒'}, newsstand:{label:'Newsstand',glyph:'📰'},
+  electronics:{label:'Electronics',glyph:'🎧'}, health:{label:'Pharmacy/Health',glyph:'💊'},
+  atm:{label:'ATM',glyph:'🏧'}, currency:{label:'Currency',glyph:'💱'}, services:{label:'Services',glyph:'🛎️'},
+};
+let dirMode = 'dining';
+
+// ─────────────────────────────────────────────
+//  BUILD UI
+// ─────────────────────────────────────────────
+const ORDER = ['domestic','T','A','B','C','D','E','F'];
+let activeC = 'domestic';
+
+function tagHtml(tags) {
+  const MAP = { atl:td('tag.atl'), bar:td('tag.bar'), coffee:td('tag.coffee'), fast:td('tag.fast'), healthy:td('tag.healthy'), '24hr':td('tag.24hr'), upscale:td('tag.upscale'), breakfast:td('tag.breakfast'), snacks:td('tag.snacks'), 'black-owned':td('tag.black-owned'), veg:td('tag.veg') };
+  return (tags||[]).map(t => MAP[t] ? `<span class="tag tag-${t}">${MAP[t]}</span>` : '').join('');
+}
+
+function renderNav() {
+  const nav = document.getElementById('concourseNav');
+  const ds = dirMode === 'shops' ? DIR_SHOPS : DIR;
+  nav.innerHTML = ORDER.map(id => {
+    const c = concourseInfo[id];
+    const count = ds.filter(r => r.concourse === id).length;
+    return `<button class="c-tab tab-${id}${id===activeC?' active':''}" onclick="setTab('${id}')">
+      <span class="tab-dot dot-${id}"></span>
+      ${c.short === 'Domestic' ? td('domestic.tab') : `${td('concourse.tab')} ${c.short}`}
+      <span class="c-tab-count">${count}</span>
+    </button>`;
+  }).join('');
+}
+
+function renderSection(id) {
+  if (dirMode === 'shops') return renderShopSection(id);
+  const c = concourseInfo[id];
+  const rows = DIR.filter(r => r.concourse === id);
+
+  // ── All lounges for this concourse ──
+  const ALL_LOUNGES = [
+    // Delta Sky Clubs
+    { type:'skyclub', concourse:'T', label:'Delta Sky Club · Concourse T',   gate:'Near Gate T6',            hours:'Daily 5am–10pm',    walk:'0–2 min from most T gates',   access:'Delta Sky Club members · Delta One® Business Class · Amex Platinum/Business Platinum (10 visits/yr) · Delta Reserve Card · Day Pass: $50' },
+    { type:'skyclub', concourse:'A', label:'Delta Sky Club · Concourse A (Center)', gate:'Center · 2nd floor',  hours:'Daily 6am–10pm',    walk:'2–5 min from any A gate',   access:'Delta Sky Club members · Delta One® · Amex Platinum/Business Platinum (10 visits/yr) · Delta Reserve · Day Pass: $50' },
+    { type:'skyclub', concourse:'A', label:'Delta Sky Club · Concourse A (Gate A17)', gate:'Near Gate A17',        hours:'Daily 5am–11pm',    walk:'2–5 min from any A gate',   access:'Delta Sky Club members · Delta One® · Amex Platinum/Business Platinum (10 visits/yr) · Delta Reserve · Day Pass: $50' },
+    { type:'skyclub', concourse:'B', label:'Delta Sky Club · Concourse B',   gate:'Near Gate B18',            hours:'Daily 6am–11pm',    walk:'2–5 min from any B gate',   access:'Delta Sky Club members · Delta One® · Amex Platinum/Business Platinum (10 visits/yr) · Delta Reserve · Day Pass: $50' },
+    { type:'skyclub', concourse:'C', label:'Delta Sky Club · Concourse C',   gate:'Near Gate C37',            hours:'Daily 6am–11pm',    walk:'Up to 10 min from C6/C7',access:'Delta Sky Club members · Delta One® · Amex Platinum/Business Platinum (10 visits/yr) · Delta Reserve · Day Pass: $50' },
+    { type:'skyclub', concourse:'D', label:'Delta Sky Club · Concourse D (Gate D12)', gate:'Near Gate D12',      hours:'Daily 6am–10pm',    walk:'2–4 min from most D gates', access:'Delta Sky Club members · Delta One® · Amex Platinum/Business Platinum (10 visits/yr) · Delta Reserve · Day Pass: $50' },
+    { type:'skyclub', concourse:'D', label:'Delta Sky Club · Concourse D (Gate D27)', gate:'Near Gate D27',      hours:'Daily 6am–11pm',    walk:'2–4 min from most D gates', access:'Delta Sky Club members · Delta One® · Amex Platinum/Business Platinum (10 visits/yr) · Delta Reserve · Day Pass: $50' },
+    { type:'skyclub', concourse:'E', label:'Delta Sky Club · Concourse E',   gate:'Across from Gate E15',     hours:'Daily 6am–10pm',    walk:'3–7 min from any E gate',   showers:true, access:'Delta Sky Club members · Delta One® · Amex Platinum/Business Platinum (10 visits/yr) · Delta Reserve · Day Pass: $50' },
+    { type:'skyclub', concourse:'F', label:'Delta Sky Club · Concourse F',   gate:'Mezzanine Level',          hours:'Daily 5:30am–11pm',  walk:'1–3 min from F mezzanine',  showers:true, skydeck:true, access:'Delta Sky Club members · Delta One® · Amex Platinum/Business Platinum (10 visits/yr) · Delta Reserve · Day Pass: $50' },
+    // Amex Centurion
+    { type:'centurion', concourse:'E', label:'Amex Centurion Lounge · Concourse E', gate:'Near Gate E11',      hours:'Daily 5am–11pm',    walk:'1–2 min from E center', showers:true, access:'Amex Platinum · Business Platinum · Centurion (Black) · +2 guests free · Day Pass: $50 · Spa on-site' },
+    // AA Admirals Club
+    { type:'admirals', concourse:'T', label:'AA Admirals Club · Concourse T',  gate:'Across from Gate T10',    hours:'Sun–Fri 5:15am–8:30pm · Sat 5:15am–8pm', walk:'2–4 min from any T gate', access:'Citi AAdvantage Executive card · AA First/Business class boarding pass · Admirals Club membership · oneworld Emerald/Sapphire · Day Pass: $79 or 7,900 miles' },
+    // United Club
+    { type:'united',   concourse:'T', label:'United Club · Concourse T',       gate:'Gate T11',                hours:'Sun–Fri 4:45am–8:45pm · Sat 4:45am–7pm', walk:'2–4 min from any T gate', access:'Chase United Club Infinite card · United Polaris Business Class (international) · United Club membership · Premier 1K status · Star Alliance Gold · Day Pass: $59 or 6,500 miles' },
+    // The Club at ATL
+    { type:'clubatl',  concourse:'F', label:'The Club at ATL · Concourse F',    gate:'Mezzanine Level',         hours:'Daily 6am–9:30pm',  walk:'1–2 min from F mezzanine', access:'Priority Pass (any tier) · Lounge Club · Diners Club International · BA Gold/Silver · Lufthansa Business/Senator/HON Circle · Day Pass: $40 at the door' },
+  ];
+
+  const META = {
+    skyclub:  { cls:'', iconCls:'', titleCls:'', icon:'◆', color:'#4338ca' },
+    centurion:{ cls:'lounge-callout-centurion', iconCls:'centurion', titleCls:'sc-title-centurion', icon:'●', color:'#1a6fa8' },
+    admirals: { cls:'lounge-callout-admirals',  iconCls:'admirals',  titleCls:'sc-title-admirals',  icon:'▲', color:'#b91c1c' },
+    united:   { cls:'lounge-callout-united',    iconCls:'united',    titleCls:'sc-title-united',    icon:'■', color:'#1d4ed8' },
+    clubatl:  { cls:'lounge-callout-clubatl',   iconCls:'clubatl',   titleCls:'sc-title-clubatl',   icon:'★', color:'#374151' },
+  };
+
+  const concLounge = ALL_LOUNGES.filter(l => l.concourse === id);
+  let scHtml = '';
+  if (concLounge.length) {
+    const cards = concLounge.map(l => {
+      const m = META[l.type] || META.skyclub;
+      const badges = [
+        (l.newest  ? `<span class="sc-badge newest">★ Newest ATL Club</span>` : ''),
+        (l.showers ? `<span class="sc-badge">🚿 Showers</span>` : ''),
+        (l.skydeck ? `<span class="sc-badge">🌤 Sky Deck</span>` : ''),
+      ].filter(Boolean).join('');
+      return `<div class="sky-club-callout ${m.cls}">
+        <div class="sc-diamond ${m.iconCls}"><span style="display:block;transform:rotate(${l.type==='skyclub'||l.type==='clubatl'?'-45':'0'}deg);font-size:15px">${m.icon}</span></div>
+        <div class="sc-info">
+          <div class="sc-title ${m.titleCls}">${l.label}</div>
+          <div class="sc-detail sc-detail-muted">${l.gate} · ${l.hours}</div>
+          <div class="sc-detail sc-detail-muted">Walking: ${l.walk}</div>
+          <div class="sc-access-mini">🔑 ${l.access}</div>
+          ${badges ? `<div>${badges}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+    scHtml = `<div class="lounge-callout-wrap">${cards}</div>`;
+  }
+
+  const tableRows = rows.map((r,i) => {
+    const scKey = r.skyClubKey;
+    const scData = SKYCLUB[scKey] || NEAREST_SC[scKey] || {};
+    const scCellLabel = scData.label || '';
+    const scCellDist = r.skyClubDist || scData.walk || '';
+    const nearRest = (r.nearbyRest||[]).join(', ');
+    const nearLand = (r.nearbyLand||[]).join(', ');
+    return `<tr data-name="${r.name.toLowerCase()}" data-concourse="${r.concourse}" data-gate="${r.gateArea.toLowerCase()}">
+      <td class="name-cell">
+        <div>${r.name}</div>
+        <div class="hours">${r.hours||''}</div>
+        <div class="tags">${tagHtml(r.tags)}</div>
+      </td>
+      <td class="gate-cell"><span class="gate-num">${r.concourse==='domestic'?'':r.concourse+' · '}</span>${r.gateArea}</td>
+      <td class="nearby-rest">${nearRest||'—'}</td>
+      <td class="nearby-land">${nearLand||'—'}</td>
+      <td class="plain-cell">${r.plainEnglish||''}${r.assumed?`<span class="assumption-note">${td('assumed')}</span>`:''}
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div id="section-${id}" class="concourse-section">
+      <div class="section-header">
+        <span class="section-pill pill-${id}">${id==='domestic'?td('domestic.tab'):td('concourse.tab')+' '+id}</span>
+        <span class="section-desc">${c.gates} · ${rows.length} dining options · ${c.desc}</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>${td('th.restaurant')}</th>
+              <th>${td('th.gate')}</th>
+              <th>${td('th.nearby.rest')}</th>
+              <th>${td('th.nearby.land')}</th>
+              <th>${td('th.location')}</th>
+            </tr>
+          </thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+      ${concLounge.length ? `<div style="margin-top:18px;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:#64748b;margin-bottom:8px;">${td('lounges.here')}</div>${scHtml}</div>` : ''}
+    </div>`;
+}
+
+function renderShopSection(id){
+  const c = concourseInfo[id];
+  const rows = DIR_SHOPS.filter(s => s.concourse === id);
+  const tableRows = rows.map(s => {
+    const cat = SHOP_CAT[s.category] || {label:'Shop',glyph:'🛍️'};
+    return `<tr data-name="${s.name.toLowerCase()}" data-concourse="${s.concourse}" data-gate="${(s.gateArea||'').toLowerCase()}">
+      <td class="name-cell"><div>${s.name}</div><div class="hours">${s.hours||''}</div></td>
+      <td><span class="shop-cat-tag cat-${s.category}">${cat.glyph} ${cat.label}</span></td>
+      <td class="gate-cell"><span class="gate-num">${s.concourse==='domestic'?'':s.concourse+' · '}</span>${s.gateArea}</td>
+      <td class="plain-cell">${s.desc||''}</td>
+      <td class="nearby-land">${s.nearbyLand||'—'}</td>
+    </tr>`;
+  }).join('');
+  return `
+    <div id="section-${id}" class="concourse-section">
+      <div class="section-header">
+        <span class="section-pill pill-${id}">${id==='domestic'?td('domestic.tab'):td('concourse.tab')+' '+id}</span>
+        <span class="section-desc">${c.gates} · ${rows.length} shops &amp; services</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Shop / Service</th>
+              <th>Category</th>
+              <th>Gate Area</th>
+              <th>Description</th>
+              <th>Nearby</th>
+            </tr>
+          </thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function setDirMode(mode){
+  dirMode = mode;
+  document.querySelectorAll('.dir-mode-btn').forEach(b=>b.classList.toggle('active', b.dataset.mode===mode));
+  const si = document.getElementById('searchInput');
+  if (si) si.value = '';
+  const sc = document.getElementById('searchCount');
+  if (sc) sc.textContent = '';
+  renderNav();
+  renderMain();
+  window.scrollTo({top:0});
+  nudgeGT();
+}
+
+function renderMain() {
+  const main = document.getElementById('mainContent');
+  main.innerHTML = renderSection(activeC) + renderNotes();
+}
+
+function renderNotes() {
+  return '<div class="notes-section"><div class="notes-title">' + td('sources') + '</div><ul class="notes-list"><li>' + td('notes.1') + '</li><li>' + td('notes.2') + '</li><li>' + td('notes.3') + '</li><li>' + td('notes.4') + '</li><li>' + td('notes.5') + '</li><li>' + td('notes.6') + '</li></ul></div>';
+}
+
+function setTab(id) {
+  activeC = id;
+  renderNav();
+  renderMain();
+  window.scrollTo({top:0});
+  nudgeGT();
+}
+
+function handleSearch(val) {
+  const q = val.trim().toLowerCase();
+  if (!q) {
+    document.getElementById('searchCount').textContent = '';
+    // restore active tab view
+    renderMain();
+    nudgeGT();
+    return;
+  }
+  // Search across ALL concourses
+  const main = document.getElementById('mainContent');
+  const allSections = ORDER.map(id => renderSection(id)).join('') + renderNotes();
+  main.innerHTML = allSections;
+  const rows = main.querySelectorAll('tbody tr');
+  let shown = 0;
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    if (text.includes(q)) { row.classList.remove('hidden'); shown++; }
+    else row.classList.add('hidden');
+  });
+  // Hide empty sections
+  main.querySelectorAll('.concourse-section').forEach(sec => {
+    const vis = sec.querySelectorAll('tbody tr:not(.hidden)').length;
+    sec.style.display = vis > 0 ? '' : 'none';
+  });
+  document.getElementById('searchCount').textContent = `${shown} ${td('search.results')}`;
+  nudgeGT();
+}
+
+// Nudge Google Translate to re-scan dynamically injected content
+function nudgeGT() {
+  try {
+    var combo = document.querySelector('.goog-te-combo');
+    if (combo && combo.value && combo.value !== 'en') {
+      setTimeout(function() { combo.dispatchEvent(new Event('change')); }, 80);
+    }
+  } catch(e) {}
+}
+
+// Init
+try {
+  applyDirLang();
+  renderNav();
+  renderMain();
+  setTimeout(nudgeGT, 700); // let GT initialise first, then re-scan dynamic content
+} catch(e) {
+  console.error('Ask Mo directory init error:', e);
+  document.getElementById('mainContent').innerHTML = '<div class="empty">⚠️ Something went wrong loading the directory. <a href="index.html">← Back to Home</a></div>';
+}
+
+// ── DARK MODE ──
+function applyTheme(dark){
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  var btn = document.getElementById('darkToggleBtn');
+  if (btn) btn.textContent = dark ? '☀️' : '🌙';
+}
+function toggleDark(){
+  var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  localStorage.setItem('askmo-theme', isDark ? 'light' : 'dark');
+  applyTheme(!isDark);
+}
+applyTheme(document.documentElement.getAttribute('data-theme') === 'dark');
+</script>
+<script src="lang-switcher.js"></script>
+</body>
+</html>
